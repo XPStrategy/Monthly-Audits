@@ -146,8 +146,13 @@ def hub_html(meta):
 # Pages every account gets a fixed path for, even before there is content.
 # key -> (label, placeholder note). The file is always <key>.html.
 RESERVED_PAGES = {
-    "amc": ("AMC Analysis", "Amazon Marketing Cloud insights for this account"),
+    "new-to-brand": ("New-to-Brand", "AMC new-to-brand customers and the search terms that bring them"),
+    "repeat-purchase": ("Repeat Purchase", "AMC Subscribe & Save, repeat and one-time buyers by month and ASIN"),
+    "path-to-conversion": ("Path to Conversion", "AMC ad types buyers saw before purchase, month by month"),
+    "time-to-conversion": ("Time to Conversion", "AMC time from ad click to purchase by ad type"),
 }
+# Paths that were used before and are removed from every account on the next init or publish.
+RETIRED_FILES = {"amc.html", "amc-ntb.html", "amc-repeat.html", "amc-path.html", "amc-ttc.html"}
 
 
 def placeholder_html(meta, key, label, note):
@@ -170,7 +175,9 @@ def placeholder_html(meta, key, label, note):
 
 def _sort_pages(pages):
     months = sorted([p for p in pages if p.get("kind") != "page"], key=lambda p: p["key"], reverse=True)
-    extra = sorted([p for p in pages if p.get("kind") == "page"], key=lambda p: p["label"])
+    order = list(RESERVED_PAGES)
+    extra = sorted([p for p in pages if p.get("kind") == "page"],
+                   key=lambda p: (order.index(p["key"]) if p["key"] in order else len(order), p["label"]))
     return months + extra
 
 
@@ -184,7 +191,11 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
     lj = os.path.join(out, "links.json")
     old = json.load(open(lj)) if os.path.exists(lj) else {}
     new_files = {p["file"] for p in add_pages}
-    pages = [p for p in old.get("pages", []) if p.get("file") not in new_files and p.get("file") not in drop_files]
+    drop = set(drop_files) | RETIRED_FILES
+    pages = [p for p in old.get("pages", []) if p.get("file") not in new_files and p.get("file") not in drop]
+    for fn in RETIRED_FILES:
+        if os.path.exists(os.path.join(out, fn)):
+            os.remove(os.path.join(out, fn))
     pages += list(add_pages)
     have = {p["file"] for p in pages}
     for key, (label, note) in RESERVED_PAGES.items():

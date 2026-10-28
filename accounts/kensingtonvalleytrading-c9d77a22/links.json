@@ -4,7 +4,7 @@
   "slack_channel": "xps-kensingtonvalleytrading",
   "slug": "kensingtonvalleytrading-c9d77a22",
   "marketplace": "US",
-  "updated": "2026-10-28T20:47:24+00:00",
+  "updated": "2026-10-28T23:11:18+00:00",
   "updated_date": "2026-10-28",
   "items": [
     {
@@ -35,9 +35,33 @@
   "client_files": [],
   "pages": [
     {
-      "key": "amc",
-      "file": "amc.html",
-      "label": "AMC Analysis",
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
       "note": "Not published yet",
       "kind": "page",
       "status": "placeholder"

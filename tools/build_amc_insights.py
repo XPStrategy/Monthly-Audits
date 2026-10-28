@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build the AMC Analysis page (amc.html) for one account from amc_findings.json.
+"""Build the four AMC pages (new-to-brand, repeat-purchase, path-to-conversion, time-to-conversion) for one account from amc_findings.json.
 
 Second page inside the account's Monthly Audit link: same XP header, links bar, Pages
 switcher, palette and footer as the monthly review (imports build_account_review helpers).
@@ -162,30 +162,6 @@ def chg(a, b):
 
 
 # ------------------------------------------------------------------ tabs ----
-def tab_overview(f):
-    m, N, Rp = f["meta"], f["ntb"], f["repeat"]
-    L = f["months"]; i0, i1 = 0, len(L) - 1
-    ntb_tot = sum(N["ntb_purchases"]); pur_tot = sum(N["purchases"])
-    cpa = [sdiv(s, n) for s, n in zip(N["spend"], N["ntb_purchases"])]
-    sns_sh = [sdiv(a, b) for a, b in zip(Rp["sns_sales"], Rp["sales"])]
-    ret_sh = [sdiv((a or 0) + (b or 0), c) for a, b, c in zip(Rp["sns_sales"], Rp["repeat_sales"], Rp["sales"])]
-    cards = (kpi("NTB orders", num(ntb_tot), f"{pct(sdiv(ntb_tot, pur_tot))} of ad-attributed orders, {L[i0]}–{L[i1]}")
-             + kpi("Spend per NTB order", money(cpa[i1]), f"{L[i1]} · {money(cpa[i0])} in {L[i0]}")
-             + (kpi("SnS share of sales", pct(sns_sh[i1]), f"{L[i1]} · {pct(sns_sh[i0])} in {L[i0]}")
-                if sum(v or 0 for v in Rp["sns_sales"]) else
-                kpi("NTB share of ad orders", pct(sdiv(N["ntb_purchases"][i1], N["purchases"][i1])),
-                    f"{L[i1]} · {pct(sdiv(N['ntb_purchases'][i0], N['purchases'][i0]))} in {L[i0]}"))
-             + kpi("Repeat + SnS share of sales" if sum(v or 0 for v in Rp["sns_sales"]) else "Repeat share of sales",
-                   pct(ret_sh[i1]), f"{L[i1]} · {pct(ret_sh[i0])} in {L[i0]}"))
-    hl = f.get("highlights", [])
-    notes = "".join(f"<li>{n}</li>" for n in f.get("notes", []))
-    body = (f'<div class="amc-kpis">{cards}</div>' + reads(hl)
-            + f'<h3>Data notes</h3><ul class="amc-note" style="margin-left:18px">{notes}</ul>')
-    return section("overview", "AMC Analysis — Overview",
-                   f"Amazon Marketing Cloud view of {esc(m['brand'])} for complete months {esc(L[i0])} – {esc(L[i1])}. "
-                   "Data only; every number comes from the queries listed in the footer.", body)
-
-
 def tab_ntb(f):
     L, N = f["months"], f["ntb"]
     ntb_pct = [sdiv(a, b) for a, b in zip(N["ntb_purchases"], N["purchases"])]
@@ -369,42 +345,76 @@ def tab_ttc(f):
 
 
 # ------------------------------------------------------------------ pages ---
-# One page per analysis. amc.html is the reserved AMC page and acts as the overview.
+# One standalone page per analysis. No overview page; each page carries its own KPIs and data notes.
+def kpis_ntb(f):
+    L, N = f["months"], f["ntb"]; i0, i1 = 0, len(L) - 1
+    cpa = [sdiv(s, n) for s, n in zip(N["spend"], N["ntb_purchases"])]
+    tot, pur = sum(N["ntb_purchases"]), sum(N["purchases"])
+    return (kpi("NTB orders", num(tot), f"{L[i0]}–{L[i1]}")
+            + kpi("NTB share of ad orders", pct(sdiv(N["ntb_purchases"][i1], N["purchases"][i1])),
+                  f"{L[i1]} · {pct(sdiv(N['ntb_purchases'][i0], N['purchases'][i0]))} in {L[i0]}")
+            + kpi("Spend per NTB order", money(cpa[i1]), f"{L[i1]} · {money(cpa[i0])} in {L[i0]}")
+            + kpi("NTB share of window", pct(sdiv(tot, pur)), "NTB orders / ad-attributed orders"))
+
+
+def kpis_repeat(f):
+    L, Rp = f["months"], f["repeat"]; i0, i1 = 0, len(L) - 1
+    has_sns = sum(v or 0 for v in Rp["sns_sales"]) > 0
+    sh = lambda k, i: sdiv(Rp[k][i], Rp["sales"][i])
+    out = ""
+    if has_sns:
+        out += kpi("SnS share of sales", pct(sh("sns_sales", i1)), f"{L[i1]} · {pct(sh('sns_sales', i0))} in {L[i0]}")
+        out += kpi("SnS sign-ups", num(sum(v or 0 for v in Rp["signups"])), f"{L[i0]}–{L[i1]}")
+    out += kpi("Repeat share of sales", pct(sh("repeat_sales", i1)), f"{L[i1]} · {pct(sh('repeat_sales', i0))} in {L[i0]}")
+    out += kpi("One-time share of sales", pct(sh("one_sales", i1)), f"{L[i1]} · {pct(sh('one_sales', i0))} in {L[i0]}")
+    return out
+
+
+def kpis_path(f):
+    L, P = f["months"], f["path"]; names = P["order"]; i1 = len(L) - 1
+    tot = lambda i: sum((P["paths"][n]["buyers"][i] or 0) for n in names) or 1
+    multi = sum((P["paths"][n]["buyers"][i1] or 0) for n in names if "+" in n) / tot(i1)
+    return (kpi("Ad-touched buyers", num(P["total_touched"]), f"{L[0]}–{L[-1]}")
+            + kpi("Saw 2+ ad types", pct(multi), L[i1])
+            + kpi("Avg touch days", f"{P['avg_touch_days']:.1f}", "before first order of the month")
+            + kpi("Avg days to order", f"{P['avg_days']:.1f}", "first touch → order"))
+
+
+def kpis_ttc(f):
+    T = f["ttc"]
+    def s(ad, bs):
+        r = [t for t in T if t["ad"] == ad]; tot = sum(t["purchases"] for t in r)
+        return sdiv(sum(t["purchases"] for t in r if t["bucket"] in bs), tot)
+    tot = sum(t["purchases"] for t in T)
+    return (kpi("Click-attributed purchases", num(tot), f["ttc_window"])
+            + kpi("SP within 1 hour", pct(s("sponsored_products", ["Within 1 hour"])), "of SP purchases")
+            + kpi("SB within 1 hour", pct(s("sponsored_brands", ["Within 1 hour"])), "of SB purchases")
+            + kpi("SP after 3 days", pct(s("sponsored_products", ["4-7 days", "8-14 days"])), "of SP purchases"))
+
+
 PAGES = [
-    # key, file, label (Home card / Pages switcher), sections, card blurb
-    ("amc", "amc.html", "AMC Analysis", [tab_overview], "Overview of every AMC analysis for the account"),
-    ("amc-ntb", "amc-ntb.html", "AMC · New-to-Brand", [tab_ntb, tab_terms], "NTB customers and orders by month and ad type, and the search terms that bring them"),
-    ("amc-repeat", "amc-repeat.html", "AMC · Repeat Purchase", [tab_repeat], "Subscribe & Save, repeat and one-time buyers by month and by ASIN"),
-    ("amc-path", "amc-path.html", "AMC · Path to Conversion", [tab_path], "Ad types buyers saw in the 30 days before purchase, month by month"),
-    ("amc-ttc", "amc-ttc.html", "AMC · Time to Conversion", [tab_ttc], "Time from ad click to purchase by ad type"),
+    # key, file, label (Home card / Pages switcher), sections, kpi fn, note
+    ("new-to-brand", "new-to-brand.html", "New-to-Brand", [tab_ntb, tab_terms], kpis_ntb,
+     "NTB customers and orders by month and ad type, and the search terms that bring them"),
+    ("repeat-purchase", "repeat-purchase.html", "Repeat Purchase", [tab_repeat], kpis_repeat,
+     "Subscribe & Save, repeat and one-time buyers by month and by ASIN"),
+    ("path-to-conversion", "path-to-conversion.html", "Path to Conversion", [tab_path], kpis_path,
+     "Ad types buyers saw in the 30 days before purchase, month by month"),
+    ("time-to-conversion", "time-to-conversion.html", "Time to Conversion", [tab_ttc], kpis_ttc,
+     "Time from ad click to purchase by ad type"),
 ]
+OLD_FILES = ["amc.html", "amc-ntb.html", "amc-repeat.html", "amc-path.html", "amc-ttc.html"]
 SEC_LABEL = dict(NAV)
 
-CARD_CSS = """
-.amc-cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:14px; margin: 4px 0 24px; }
-.amc-card { display:block; background:#fff; border:1px solid %(border)s; border-left:4px solid %(accent)s; border-radius:6px;
-            padding:16px; text-decoration:none; color:%(ink)s; }
-.amc-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
-.amc-card b { display:block; font-size:15px; color:%(dark)s; margin-bottom:6px; }
-.amc-card span { font-size:12.5px; color:%(muted)s; }
-.amc-back { font-size:13px; margin: 0 0 14px; }
-.amc-back a { color:%(dark)s; }
-""" % dict(border=B.BORDER, accent=B.ACCENT, ink=B.INK, dark=B.DARK, muted=B.MUTED)
 
-
-def cards_html():
-    return '<h3>AMC analyses</h3><div class="amc-cards">' + "".join(
-        f'<a class="amc-card" href="{fn}"><b>{esc(lab.replace("AMC · ", ""))}</b><span>{esc(blurb)}</span></a>'
-        for k, fn, lab, _, blurb in PAGES if k != "amc") + "</div>"
-
-
-def page_doc(f, lb, title, sections, overview=False):
-    m = f["meta"]
-    body = "".join(t(f) for t in sections)
-    if overview:   # analysis cards right after the KPI / highlights block
-        body = body.replace("<h3>Data notes</h3>", cards_html() + "<h3>Data notes</h3>", 1)
-    else:
-        body = '<p class="amc-back"><a href="amc.html">&larr; AMC Analysis overview</a></p>' + body
+def page_doc(f, lb, title, sections, kfn):
+    m = f["meta"]; L = f["months"]
+    notes = "".join(f"<li>{n}</li>" for n in f.get("notes", []))
+    head = (f'<p class="amc-intro">Amazon Marketing Cloud · {esc(m["brand"])} · complete months {esc(L[0])} – {esc(L[-1])}. '
+            "Data only; every number comes from the AMC queries listed in the footer.</p>"
+            f'<div class="amc-kpis">{kfn(f)}</div>')
+    body = head + "".join(t(f) for t in sections) + (
+        f'<h3>Data notes</h3><ul class="amc-note" style="margin-left:18px">{notes}</ul>' if notes else "")
     secs = [t.__name__.replace("tab_", "") for t in sections]
     keymap = {"overview": "overview", "ntb": "ntb", "terms": "ntb_terms", "repeat": "repeat", "path": "path", "ttc": "ttc"}
     nav = "".join(f'<li><a href="#{keymap[k]}">{SEC_LABEL[keymap[k]]}</a></li>' for k in secs) if len(secs) > 1 else ""
@@ -419,7 +429,7 @@ def page_doc(f, lb, title, sections, overview=False):
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>{esc(m['brand'])} — {esc(title)}</title>
-<style>{R.BASE_CSS}{R.EXTRA_CSS}{CSS}{CARD_CSS}{H.HEADER_CSS}</style></head><body>
+<style>{R.BASE_CSS}{R.EXTRA_CSS}{CSS}.amc-intro{{font-size:13px;color:{B.MUTED};margin:0 0 14px}}{H.HEADER_CSS}</style></head><body>
 {H.head_block(links, m["brand"], lb, m['marketplace'], m['pulled'], extra_bar=extra, period=m['period'])}
 <main>{body}</main>
 <footer><div class="foot-dates">{dates}</div><div class="disclaimer">{B.DISCLAIMER}</div>
@@ -433,8 +443,11 @@ def build(findings, out_dir, logo=B.LOGO_HERO):
     f = json.load(open(findings)); lb = R.load_logo_b64(logo)
     os.makedirs(out_dir, exist_ok=True)
     manifest = []
-    for key, fn, label, sections, blurb in PAGES:
-        open(os.path.join(out_dir, fn), "w").write(page_doc(f, lb, label, sections, overview=(key == "amc")))
+    for old in OLD_FILES:
+        if os.path.exists(os.path.join(out_dir, old)):
+            os.remove(os.path.join(out_dir, old))
+    for key, fn, label, sections, kfn, blurb in PAGES:
+        open(os.path.join(out_dir, fn), "w").write(page_doc(f, lb, label, sections, kfn))
         manifest.append({"key": key, "file": fn, "label": label, "note": f"{f['meta']['period']} · {blurb}"})
     json.dump(manifest, open(os.path.join(out_dir, "pages.json"), "w"), indent=1)
     return [m["file"] for m in manifest]
