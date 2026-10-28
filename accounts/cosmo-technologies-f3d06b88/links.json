@@ -4,7 +4,7 @@
   "slack_channel": "xps-cosmo-technologies",
   "slug": "cosmo-technologies-f3d06b88",
   "marketplace": "US",
-  "updated": "2026-10-28T20:47:24+00:00",
+  "updated": "2026-10-28T21:02:12+00:00",
   "updated_date": "2026-10-28",
   "items": [
     {
@@ -44,9 +44,8 @@
       "key": "amc",
       "file": "amc.html",
       "label": "AMC Analysis",
-      "note": "Not published yet",
-      "kind": "page",
-      "status": "placeholder"
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB, repeat, path and time to conversion",
+      "kind": "page"
     }
   ],
   "names": {
