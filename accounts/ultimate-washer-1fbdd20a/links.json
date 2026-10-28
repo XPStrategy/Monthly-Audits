@@ -1,0 +1,49 @@
+{
+  "brand": "Ultimate Washer",
+  "client": "ultimate-washer",
+  "slack_channel": "xps-ultimate-washer",
+  "slug": "ultimate-washer-1fbdd20a",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:25+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1iUmXA472yRKf4LbseD28EJn41Olq_YtM"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C0C27LPE6G7"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Ultimate Washer - Monthly Account Review"
+  }
+}

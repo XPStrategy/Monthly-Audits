@@ -1,0 +1,49 @@
+{
+  "brand": "Badass Moto",
+  "client": "badass-moto",
+  "slack_channel": "xps-badass-moto",
+  "slug": "badass-moto-c91d6e48",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:26+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1JhJexPAGOx8yGmVJ7kh9iEdYnzN8qkcm"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C0C9APBHS3C"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Badass Moto - Monthly Account Review"
+  }
+}

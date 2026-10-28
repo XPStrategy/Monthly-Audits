@@ -1,0 +1,49 @@
+{
+  "brand": "Boroux",
+  "client": "boroux",
+  "slack_channel": "xps-boroux",
+  "slug": "boroux-c027fc12",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:24+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1i2kCeOwYC1Mdginurk6qVNrzauKLfddp"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C076BNPBYD9"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Boroux - Monthly Account Review"
+  }
+}

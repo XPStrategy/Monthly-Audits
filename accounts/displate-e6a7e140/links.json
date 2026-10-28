@@ -1,0 +1,49 @@
+{
+  "brand": "Displate",
+  "client": "displate",
+  "slack_channel": "xps-displate",
+  "slug": "displate-e6a7e140",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:25+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1_1ZxUsIVyo1nmppImbI3IIo3vxWqqPHD"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C09FQSRH7HC"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Displate - Monthly Account Review"
+  }
+}

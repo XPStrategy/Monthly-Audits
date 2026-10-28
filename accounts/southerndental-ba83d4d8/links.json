@@ -1,0 +1,49 @@
+{
+  "brand": "Southern Dental (FireFly)",
+  "client": "southerndental",
+  "slack_channel": "xps-southerndental",
+  "slug": "southerndental-ba83d4d8",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:25+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/18Tgp9P-IUDL-z4W2wpCG4V4x2gLcdHpR"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C08PGRX8MA9"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Southern Dental (FireFly) - Monthly Account Review"
+  }
+}

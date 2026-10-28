@@ -12,6 +12,7 @@ tools/publish_monthly.py   publishes one client's month into accounts/
 accounts/<client>-<8 hex>/
   index.html               Home: one card per month, newest first (the link the AM opens)
   <yyyy-mm>.html           that month's review
+  amc.html                 AMC Analysis (reserved: placeholder until published)
   links.json               months + links (Drive folder, Slack channel, consoles)
 index.html                 blank landing page, lists nothing
 robots.txt                 Disallow: /
@@ -28,6 +29,17 @@ The 8-hex suffix is fixed per client, so the link never changes.
 | Channel ↔ folder ↔ MAP account map | `_Channel Map - Internal Audits` sheet in that Drive folder |
 | Live pages | `https://xpstrategy.github.io/Monthly-Audits/accounts/<client>-<8 hex>/` |
 | Communication | The client's own `#xps-<client>` Slack channel only. Claude drafts the post; a person approves before it sends |
+
+## Every account already has a Home
+
+All 29 `#xps-` channels have `accounts/<client>-<8 hex>/` with a Home page and an AMC placeholder,
+even before their first review. The Drive folder holds `[LINK] <Brand> - XP Strategy - Internal Audit Page`
+with the paths.
+
+- New account: `python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" --drive-folder <id> --slack-channel-id <id>`
+- Extra page (AMC or any other): `python3 tools/publish_monthly.py page --repo . --client xps-<client> --brand "<Brand>" --key amc --label "AMC Analysis" --file amc.html`
+  The page appears under "Other Pages" on Home and in every page's Pages switcher. To reserve a new path
+  for every account, add it to `RESERVED_PAGES` in the script and re-run `init`.
 
 ## Monthly run (10th of each month)
 

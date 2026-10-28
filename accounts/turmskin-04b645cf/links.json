@@ -1,0 +1,49 @@
+{
+  "brand": "Turmskin",
+  "client": "turmskin",
+  "slack_channel": "xps-turmskin",
+  "slug": "turmskin-04b645cf",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:26+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1MIYSHlWjqfDF6GO4eU-2MCboJbOJXnsP"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C0CABB31T8X"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Turmskin - Monthly Account Review"
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "brand": "SavonGoods",
+  "client": "savongoods",
+  "slack_channel": "xps-savongoods",
+  "slug": "savongoods-c6b29536",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:24+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1Ple_RP34Rg2AumkxA4zID-GdM8KeMYCg"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/G0157U6J16H"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "SavonGoods - Monthly Account Review"
+  }
+}

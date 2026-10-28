@@ -1,0 +1,49 @@
+{
+  "brand": "Joe's Trend",
+  "client": "joes-trend",
+  "slack_channel": "xps-joes-trend",
+  "slug": "joes-trend-58c2f75b",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:26+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1VTqGVT8q2bZ4NWIWMUH-uoWBTTYukjvT"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C0C823LV6DU"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Joe's Trend - Monthly Account Review"
+  }
+}

@@ -4,7 +4,7 @@
   "slack_channel": "xps-advanced-bionutritionals",
   "slug": "advanced-bionutritionals-77c9bffa",
   "marketplace": "US",
-  "updated": "2026-10-28T14:55:23+00:00",
+  "updated": "2026-10-28T20:47:25+00:00",
   "updated_date": "2026-10-28",
   "items": [
     {
@@ -39,6 +39,14 @@
       "file": "2026-10.html",
       "label": "October 2026",
       "note": "Run Oct 28, 2026 \u00b7 L30 Sep 26 \u2013 Oct 25"
+    },
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
     }
   ],
   "names": {

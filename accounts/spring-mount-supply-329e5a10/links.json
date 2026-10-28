@@ -1,0 +1,49 @@
+{
+  "brand": "Spring Mount Supply",
+  "client": "spring-mount-supply",
+  "slack_channel": "xps-spring-mount-supply",
+  "slug": "spring-mount-supply-329e5a10",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:24+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1mFp2HpaHeJuQL-ztTLTs0r5Gd57u-HrN"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C03D1C3HATV"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "Spring Mount Supply - Monthly Account Review"
+  }
+}

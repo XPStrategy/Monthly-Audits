@@ -22,7 +22,13 @@ Usage:
         [--drive-folder <folder id>] [--slack-channel-id <C...>] [--marketplace US] \
         [--commit] [--push]
 
-Prints the Home URL and the month URL.
+    python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" \
+        --drive-folder <id> --slack-channel-id <C...>          # empty Home, reserved pages
+    python3 tools/publish_monthly.py page --repo . --client xps-<client> --brand "<Brand>" \
+        --key amc --label "AMC Analysis" --file amc.html       # replaces the AMC placeholder
+
+Reserved pages (RESERVED_PAGES) get a placeholder at <key>.html so the path exists before
+there is content. Prints the Home URL and the month or page URL.
 """
 import argparse
 import glob
@@ -89,6 +95,9 @@ h2 { font-size: 22px; font-weight: 600; color: %(dark)s; margin-bottom: 18px;
 .card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
 .card b { display: block; font-size: 16px; margin-bottom: 6px; color: %(dark)s; }
 .card span { font-size: 12.5px; color: %(muted)s; }
+.card.off { border-style: dashed; }
+.card.off b { color: %(muted)s; }
+.empty { font-size: 13.5px; color: %(muted)s; }
 @media (max-width: 720px) { main { padding: 20px 16px 30px; } }
 """ % dict(bg=B.BG, ink=B.INK, dark=B.DARK, border=B.BORDER, accent=B.ACCENT, muted=B.MUTED)
 
@@ -104,7 +113,8 @@ def hub_html(meta):
 <style>{HUB_CSS}{H.HEADER_CSS}</style>
 </head><body>
 {H.head_block(meta, brand_name, logo_b64(), meta.get('marketplace') or '', meta.get('updated_date') or '')}
-<main><h2>Monthly Account Reviews</h2><div class="grid" id="cards"></div></main>
+<main><h2>Monthly Account Reviews</h2><div class="grid" id="cards"></div>
+<h2 style="margin-top:34px">Other Pages</h2><div class="grid" id="extra"></div></main>
 {H.footer_html(B.DISCLAIMER, 'one review per month, newest first', brand_name, meta.get('updated_date') or '')}
 <script type="application/json" id="hub-seed">{seed}</script>
 {H.scripts_block(meta)}
@@ -113,12 +123,14 @@ def hub_html(meta):
   var M = JSON.parse(document.getElementById('hub-seed').textContent);
   function e(t){{ var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }}
   function render(){{
-    var c = '';
-    (M.pages || []).forEach(function(p, i){{
-      c += '<a class="card' + (i === 0 ? ' latest' : '') + '" href="' + e(p.file) + '"><b>' + e(p.label) + '</b><span>'
-         + e(p.note || 'Open review') + '</span></a>';
+    var c = '', x = '', first = true;
+    (M.pages || []).forEach(function(p){{
+      var card = '<a class="card' + (p.status === 'placeholder' ? ' off' : '') + (p.kind !== 'page' && first ? ' latest' : '') + '" href="' + e(p.file) + '"><b>' + e(p.label) + '</b><span>'
+         + e(p.note || 'Open') + '</span></a>';
+      if (p.kind === 'page') x += card; else {{ c += card; first = false; }}
     }});
-    document.getElementById('cards').innerHTML = c || '<p>No reviews published yet.</p>';
+    document.getElementById('cards').innerHTML = c || '<p class="empty">No monthly review published yet. The first one lands on the 10th.</p>';
+    document.getElementById('extra').innerHTML = x || '<p class="empty">No other pages yet.</p>';
   }}
   render();
   if (location.protocol.indexOf('http') === 0) {{
@@ -129,6 +141,82 @@ def hub_html(meta):
 </script>
 </body></html>
 """
+
+
+# Pages every account gets a fixed path for, even before there is content.
+# key -> (label, placeholder note). The file is always <key>.html.
+RESERVED_PAGES = {
+    "amc": ("AMC Analysis", "Amazon Marketing Cloud insights for this account"),
+}
+
+
+def placeholder_html(meta, key, label, note):
+    brand_name = meta["brand"]
+    return f"""<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>{esc(brand_name)} - {esc(label)}</title>
+<style>{HUB_CSS}{H.HEADER_CSS}</style>
+</head><body>
+{H.head_block(meta, brand_name, logo_b64(), meta.get('marketplace') or '', meta.get('updated_date') or '')}
+<main><h2>{esc(label)}</h2>
+<p class="empty">{esc(note)}. This page is reserved and has no content yet.</p></main>
+{H.footer_html(B.DISCLAIMER, 'not published yet', brand_name, meta.get('updated_date') or '')}
+{H.scripts_block(meta)}
+</body></html>
+"""
+
+
+def _sort_pages(pages):
+    months = sorted([p for p in pages if p.get("kind") != "page"], key=lambda p: p["key"], reverse=True)
+    extra = sorted([p for p in pages if p.get("kind") == "page"], key=lambda p: p["label"])
+    return months + extra
+
+
+def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_channel_id=None,
+              add_pages=(), drop_files=()):
+    """Create or refresh accounts/<slug>/ (Home, links.json, reserved placeholders).
+    add_pages: page dicts to add or replace (matched by file). Returns (slug, meta)."""
+    slug = folder_slug(client)
+    out = os.path.join(repo, "accounts", slug)
+    os.makedirs(out, exist_ok=True)
+    lj = os.path.join(out, "links.json")
+    old = json.load(open(lj)) if os.path.exists(lj) else {}
+    new_files = {p["file"] for p in add_pages}
+    pages = [p for p in old.get("pages", []) if p.get("file") not in new_files and p.get("file") not in drop_files]
+    pages += list(add_pages)
+    have = {p["file"] for p in pages}
+    for key, (label, note) in RESERVED_PAGES.items():
+        if f"{key}.html" not in have:
+            pages.append({"key": key, "file": f"{key}.html", "label": label, "note": "Not published yet",
+                          "kind": "page", "status": "placeholder"})
+    items = link_items(marketplace, drive_folder, slack_channel_id)
+    prev = {i["key"]: i for i in old.get("items", [])}
+    for i in items:
+        if not i.get("url") and prev.get(i["key"], {}).get("url"):
+            i["url"] = prev[i["key"]]["url"]
+    brand = brand or old.get("brand") or client
+    meta = {
+        "brand": brand,
+        "client": re.sub(r"^xps-", "", client),
+        "slack_channel": "xps-" + re.sub(r"^xps-", "", client),
+        "slug": slug,
+        "marketplace": marketplace or old.get("marketplace") or "US",
+        "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "updated_date": date.today().isoformat(),
+        "items": items, "client_files": [], "pages": _sort_pages(pages),
+        "names": {"base": f"{brand} - Monthly Account Review"},
+    }
+    json.dump(meta, open(lj, "w"), indent=2)
+    with open(os.path.join(out, "index.html"), "w") as f:
+        f.write(hub_html(meta))
+    for p in meta["pages"]:
+        if p.get("status") == "placeholder":
+            label, note = RESERVED_PAGES.get(p["key"], (p["label"], p["label"]))
+            with open(os.path.join(out, p["file"]), "w") as f:
+                f.write(placeholder_html(meta, p["key"], label, note))
+    return slug, meta
 
 
 def link_items(marketplace, drive_folder, slack_channel_id):
@@ -150,8 +238,6 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
     slug = folder_slug(client)
     out = os.path.join(repo, "accounts", slug)
     os.makedirs(out, exist_ok=True)
-    lj = os.path.join(out, "links.json")
-    old = json.load(open(lj)) if os.path.exists(lj) else {}
 
     page = open(review, encoding="utf-8").read()
     if 'id="xp-home-bar"' not in page and 'xph-stick' not in page:   # pages with the shared header get Home from its Pages switcher
@@ -162,31 +248,9 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
         page = re.sub(r"(<body[^>]*>)", r"\1" + bar.replace("\\", "\\\\"), page, count=1)
     with open(os.path.join(out, f"{month}.html"), "w", encoding="utf-8") as f:
         f.write(page)
-    pages = [p for p in old.get("pages", []) if p.get("file") != f"{month}.html"]
-    pages.append({"key": month, "file": f"{month}.html", "label": month_label(month),
-                  "note": note or "Monthly Account Review"})
-    pages.sort(key=lambda p: p["key"], reverse=True)
-
-    items = link_items(marketplace, drive_folder, slack_channel_id)
-    prev = {i["key"]: i for i in old.get("items", [])}
-    for i in items:
-        if not i.get("url") and prev.get(i["key"], {}).get("url"):
-            i["url"] = prev[i["key"]]["url"]
-
-    meta = {
-        "brand": brand or old.get("brand") or client,
-        "client": re.sub(r"^xps-", "", client),
-        "slack_channel": "xps-" + re.sub(r"^xps-", "", client),
-        "slug": slug,
-        "marketplace": marketplace or old.get("marketplace") or "US",
-        "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "updated_date": date.today().isoformat(),
-        "items": items, "client_files": [], "pages": pages,
-        "names": {"base": f"{brand} - Monthly Account Review"},
-    }
-    json.dump(meta, open(lj, "w"), indent=2)
-    with open(os.path.join(out, "index.html"), "w") as f:
-        f.write(hub_html(meta))
+    slug, meta = write_hub(repo, client, brand, marketplace, drive_folder, slack_channel_id,
+                           add_pages=[{"key": month, "file": f"{month}.html", "label": month_label(month),
+                                       "note": note or "Monthly Account Review", "kind": "review"}])
 
     home = f"{PAGES_BASE}/accounts/{slug}/"
     if commit:
@@ -198,13 +262,30 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
     return home
 
 
+def add_page(repo, client, brand, key, label, src, note=None):
+    if not re.fullmatch(r"[a-z0-9-]+", key):
+        sys.exit("--key: lowercase letters, digits and dashes only")
+    slug = folder_slug(client)
+    out = os.path.join(repo, "accounts", slug)
+    os.makedirs(out, exist_ok=True)
+    shutil.copyfile(src, os.path.join(out, f"{key}.html"))
+    slug, meta = write_hub(repo, client, brand, add_pages=[{"key": key, "file": f"{key}.html", "label": label,
+                                                          "note": note or label, "kind": "page"}])
+    print(json.dumps({"page": f"{PAGES_BASE}/accounts/{slug}/{key}.html", "slug": slug}))
+
+
 def main():
     p = argparse.ArgumentParser()
+    p.add_argument("mode", nargs="?", default="review", choices=["review", "init", "page"],
+                   help="review: publish a month (default) · init: create the account's Home only · page: publish an extra page")
     p.add_argument("--repo", required=True)
     p.add_argument("--client", required=True, help="Slack channel name, with or without xps-")
     p.add_argument("--brand", required=True)
-    p.add_argument("--month", required=True, help="YYYY-MM of the run")
-    p.add_argument("--review", required=True, help="the month's review HTML")
+    p.add_argument("--month", help="YYYY-MM of the run (review)")
+    p.add_argument("--review", help="the month's review HTML (review)")
+    p.add_argument("--key", help="page path key, e.g. amc -> amc.html (page)")
+    p.add_argument("--label", help="page card title (page)")
+    p.add_argument("--file", help="page HTML (page)")
     p.add_argument("--marketplace", default="US")
     p.add_argument("--drive-folder")
     p.add_argument("--slack-channel-id")
@@ -212,6 +293,17 @@ def main():
     p.add_argument("--commit", action="store_true")
     p.add_argument("--push", action="store_true")
     a = p.parse_args()
+    if a.mode == "init":
+        slug, _ = write_hub(a.repo, a.client, a.brand, a.marketplace, a.drive_folder, a.slack_channel_id)
+        print(json.dumps({"home": f"{PAGES_BASE}/accounts/{slug}/", "slug": slug}))
+        return
+    if a.mode == "page":
+        if not (a.key and a.label and a.file):
+            sys.exit("page needs --key, --label and --file")
+        add_page(a.repo, a.client, a.brand, a.key, a.label, a.file, a.note)
+        return
+    if not (a.month and a.review):
+        sys.exit("review needs --month and --review")
     publish(a.repo, a.client, a.brand, a.month, a.review, a.marketplace, a.drive_folder,
             a.slack_channel_id, a.note, a.commit, a.push)
 

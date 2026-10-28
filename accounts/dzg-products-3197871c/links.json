@@ -1,0 +1,49 @@
+{
+  "brand": "DZG Products",
+  "client": "dzg-products",
+  "slack_channel": "xps-dzg-products",
+  "slug": "dzg-products-3197871c",
+  "marketplace": "US",
+  "updated": "2026-10-28T20:47:24+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1wNoo8iq9LJWzmeE_J2JbUg1c39fECuXW"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C06UAP6CU13"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "amc",
+      "file": "amc.html",
+      "label": "AMC Analysis",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ],
+  "names": {
+    "base": "DZG Products - Monthly Account Review"
+  }
+}
