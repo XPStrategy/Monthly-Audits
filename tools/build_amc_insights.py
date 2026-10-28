@@ -244,8 +244,9 @@ def tab_repeat(f):
     tb = table([("Month", 0), ("Customers", 1), ("Sales", 1), ("SnS customers", 1), ("SnS % sales", 1), ("Repeat customers", 1),
                 ("Repeat % sales", 1), ("One-time customers", 1), ("One-time % sales", 1), ("SnS sign-ups", 1)], rows)
     A = f["asin"]; atot = sum(a["sales"] for a in A) or 1
+    TOPN = 40
     arows = []
-    for a in A:
+    for a in A[:TOPN]:
         arows.append([esc(a["asin"]), esc(a["name"]), money(a["sales"]), pct(a["sales"] / atot), num(a["customers"]),
                       mini_split([("SnS", a["sns_sales"], C_SNS), ("Repeat", a["repeat_sales"], C_REP), ("One-time", a["one_sales"], C_ONE)]),
                       pct(sdiv(a["sns_sales"], a["sales"])), pct(sdiv(a["repeat_sales"], a["sales"])), pct(sdiv(a["one_sales"], a["sales"])),
@@ -267,7 +268,8 @@ def tab_repeat(f):
                    "Each customer-month is one segment: SnS subscriber (signed up by that month) → repeat (bought earlier or 2+ orders "
                    "that month) → one-time. Segments add up to the total. Covers all orders on tracked ASINs that AMC can see.",
                    rd + "<h3>Sales mix by customer type</h3>" + ch1 + ch2
-                   + "<h3>Monthly detail</h3>" + tb + f"<h3>By ASIN ({esc(f['repeat_window'])})</h3>" + ta)
+                   + "<h3>Monthly detail</h3>" + tb
+                   + f"<h3>By ASIN ({esc(f['repeat_window'])}{', top ' + str(TOPN) + ' of ' + str(len(A)) + ' by sales; full list in the data workbook' if len(A) > TOPN else ''})</h3>" + ta)
 
 
 def tab_path(f):
