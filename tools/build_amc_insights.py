@@ -368,35 +368,80 @@ def tab_ttc(f):
                    rd + '<div class="amc-grid2">' + "".join(blocks) + "</div><h3>Detail</h3>" + tb)
 
 
-# ------------------------------------------------------------------ page ----
-def build(findings, out, logo=B.LOGO_HERO):
-    f = json.load(open(findings)); m = f["meta"]
-    lb = R.load_logo_b64(logo)
-    nav = "".join(f'<li><a href="#{k}">{v}</a></li>' for k, v in NAV)
-    body = "".join(t(f) for t in (tab_overview, tab_ntb, tab_terms, tab_repeat, tab_path, tab_ttc))
+# ------------------------------------------------------------------ pages ---
+# One page per analysis. amc.html is the reserved AMC page and acts as the overview.
+PAGES = [
+    # key, file, label (Home card / Pages switcher), sections, card blurb
+    ("amc", "amc.html", "AMC Analysis", [tab_overview], "Overview of every AMC analysis for the account"),
+    ("amc-ntb", "amc-ntb.html", "AMC · New-to-Brand", [tab_ntb, tab_terms], "NTB customers and orders by month and ad type, and the search terms that bring them"),
+    ("amc-repeat", "amc-repeat.html", "AMC · Repeat Purchase", [tab_repeat], "Subscribe & Save, repeat and one-time buyers by month and by ASIN"),
+    ("amc-path", "amc-path.html", "AMC · Path to Conversion", [tab_path], "Ad types buyers saw in the 30 days before purchase, month by month"),
+    ("amc-ttc", "amc-ttc.html", "AMC · Time to Conversion", [tab_ttc], "Time from ad click to purchase by ad type"),
+]
+SEC_LABEL = dict(NAV)
+
+CARD_CSS = """
+.amc-cards { display:grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap:14px; margin: 4px 0 24px; }
+.amc-card { display:block; background:#fff; border:1px solid %(border)s; border-left:4px solid %(accent)s; border-radius:6px;
+            padding:16px; text-decoration:none; color:%(ink)s; }
+.amc-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,.08); }
+.amc-card b { display:block; font-size:15px; color:%(dark)s; margin-bottom:6px; }
+.amc-card span { font-size:12.5px; color:%(muted)s; }
+.amc-back { font-size:13px; margin: 0 0 14px; }
+.amc-back a { color:%(dark)s; }
+""" % dict(border=B.BORDER, accent=B.ACCENT, ink=B.INK, dark=B.DARK, muted=B.MUTED)
+
+
+def cards_html():
+    return '<h3>AMC analyses</h3><div class="amc-cards">' + "".join(
+        f'<a class="amc-card" href="{fn}"><b>{esc(lab.replace("AMC · ", ""))}</b><span>{esc(blurb)}</span></a>'
+        for k, fn, lab, _, blurb in PAGES if k != "amc") + "</div>"
+
+
+def page_doc(f, lb, title, sections, overview=False):
+    m = f["meta"]
+    body = "".join(t(f) for t in sections)
+    if overview:   # analysis cards right after the KPI / highlights block
+        body = body.replace("<h3>Data notes</h3>", cards_html() + "<h3>Data notes</h3>", 1)
+    else:
+        body = '<p class="amc-back"><a href="amc.html">&larr; AMC Analysis overview</a></p>' + body
+    secs = [t.__name__.replace("tab_", "") for t in sections]
+    keymap = {"overview": "overview", "ntb": "ntb", "terms": "ntb_terms", "repeat": "repeat", "path": "path", "ttc": "ttc"}
+    nav = "".join(f'<li><a href="#{keymap[k]}">{SEC_LABEL[keymap[k]]}</a></li>' for k in secs) if len(secs) > 1 else ""
     dates = "".join(f"<div><b>{esc(k)}:</b> {esc(v)}</div>" for k, v in m["windows"])
     links = {"items": [{"key": "drive_folder", "label": "Drive folder", "group": "client", "url": None},
                        {"key": "slack_channel", "label": "Slack channel", "group": "client", "url": None},
                        {"key": "seller_central", "label": "Seller Central", "group": "client", "url": "https://sellercentral.amazon.com"},
                        {"key": "ads_console", "label": "Ads console", "group": "client", "url": "https://advertising.amazon.com"}],
              "client_files": [], "pages": []}
-    doc = f"""<!DOCTYPE html>
+    extra = f'<nav class="tabs"><ul>{nav}</ul></nav>' if nav else ""
+    return f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<title>{esc(m['brand'])} — AMC Analysis</title>
-<style>{R.BASE_CSS}{R.EXTRA_CSS}{CSS}{H.HEADER_CSS}</style></head><body>
-{H.head_block(links, m["brand"], lb, m['marketplace'], m['pulled'], extra_bar=f'<nav class="tabs"><ul>{nav}</ul></nav>', period=m['period'])}
+<title>{esc(m['brand'])} — {esc(title)}</title>
+<style>{R.BASE_CSS}{R.EXTRA_CSS}{CSS}{CARD_CSS}{H.HEADER_CSS}</style></head><body>
+{H.head_block(links, m["brand"], lb, m['marketplace'], m['pulled'], extra_bar=extra, period=m['period'])}
 <main>{body}</main>
 <footer><div class="foot-dates">{dates}</div><div class="disclaimer">{B.DISCLAIMER}</div>
-<div style="margin-top:10px;opacity:0.6;">{B.BRAND_NAME} &middot; {esc(m['brand'])} &middot; AMC Analysis &middot; {m['pulled']}</div></footer>
+<div style="margin-top:10px;opacity:0.6;">{B.BRAND_NAME} &middot; {esc(m['brand'])} &middot; {esc(title)} &middot; {m['pulled']}</div></footer>
 {H.scripts_block(links)}
 </body></html>"""
-    open(out, "w").write(doc)
-    return out
+
+
+def build(findings, out_dir, logo=B.LOGO_HERO):
+    """Writes one HTML per analysis into out_dir and pages.json (key, file, label, note) for publishing."""
+    f = json.load(open(findings)); lb = R.load_logo_b64(logo)
+    os.makedirs(out_dir, exist_ok=True)
+    manifest = []
+    for key, fn, label, sections, blurb in PAGES:
+        open(os.path.join(out_dir, fn), "w").write(page_doc(f, lb, label, sections, overview=(key == "amc")))
+        manifest.append({"key": key, "file": fn, "label": label, "note": f"{f['meta']['period']} · {blurb}"})
+    json.dump(manifest, open(os.path.join(out_dir, "pages.json"), "w"), indent=1)
+    return [m["file"] for m in manifest]
 
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--findings", required=True); ap.add_argument("--out", required=True)
+    ap.add_argument("--findings", required=True); ap.add_argument("--out-dir", required=True)
     a = ap.parse_args()
-    print("[done]", build(a.findings, a.out))
+    print("[done]", build(a.findings, a.out_dir))

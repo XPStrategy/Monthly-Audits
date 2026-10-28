@@ -4,7 +4,7 @@
   "slack_channel": "xps-cosmo-technologies",
   "slug": "cosmo-technologies-f3d06b88",
   "marketplace": "US",
-  "updated": "2026-10-28T21:02:12+00:00",
+  "updated": "2026-10-28T21:05:18+00:00",
   "updated_date": "2026-10-28",
   "items": [
     {
@@ -44,7 +44,35 @@
       "key": "amc",
       "file": "amc.html",
       "label": "AMC Analysis",
-      "note": "Jan \u2013 Sep 2026 \u00b7 NTB, repeat, path and time to conversion",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Overview of every AMC analysis for the account",
+      "kind": "page"
+    },
+    {
+      "key": "amc-ntb",
+      "file": "amc-ntb.html",
+      "label": "AMC \u00b7 New-to-Brand",
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB customers and orders by month and ad type, and the search terms that bring them",
+      "kind": "page"
+    },
+    {
+      "key": "amc-path",
+      "file": "amc-path.html",
+      "label": "AMC \u00b7 Path to Conversion",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Ad types buyers saw in the 30 days before purchase, month by month",
+      "kind": "page"
+    },
+    {
+      "key": "amc-repeat",
+      "file": "amc-repeat.html",
+      "label": "AMC \u00b7 Repeat Purchase",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Subscribe & Save, repeat and one-time buyers by month and by ASIN",
+      "kind": "page"
+    },
+    {
+      "key": "amc-ttc",
+      "file": "amc-ttc.html",
+      "label": "AMC \u00b7 Time to Conversion",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page"
     }
   ],
