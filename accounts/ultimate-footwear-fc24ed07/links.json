@@ -1,0 +1,47 @@
+{
+  "brand": "Ultimate Footwear (Josmo)",
+  "client": "ultimate-footwear",
+  "slack_channel": "xps-ultimate-footwear",
+  "slug": "ultimate-footwear-fc24ed07",
+  "marketplace": "US",
+  "updated": "2026-10-28T14:45:03+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1nihR3sxhH4iEvUJLOtrj31XNBddsNaDr"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C04H5DXFT1C"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "2026-10",
+      "file": "2026-10.html",
+      "label": "October 2026",
+      "note": "Run Oct 28, 2026 \u00b7 L30 Sep 26 \u2013 Oct 25"
+    }
+  ],
+  "names": {
+    "base": "Ultimate Footwear (Josmo) - Monthly Account Review"
+  }
+}

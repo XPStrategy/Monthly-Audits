@@ -154,7 +154,7 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
     old = json.load(open(lj)) if os.path.exists(lj) else {}
 
     page = open(review, encoding="utf-8").read()
-    if 'id="xp-home-bar"' not in page:
+    if 'id="xp-home-bar"' not in page and 'xph-stick' not in page:   # pages with the shared header get Home from its Pages switcher
         bar = ('<div id="xp-home-bar" style="background:#fff;border-bottom:1px solid #e5e5e5;'
                'font:600 12.5px/1 \'Helvetica Neue\',Arial,sans-serif;padding:10px 16px">'
                '<a href="./" style="color:#111;text-decoration:none">&larr; Home &middot; '

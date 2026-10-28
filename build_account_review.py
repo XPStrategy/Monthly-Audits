@@ -15,12 +15,14 @@ for _name in ("xp-audit-prospect", "amazon-ads-prospect-audit"):      # renamed 
 AUDIT_SCRIPTS = next((c for c in _cands if c and os.path.exists(os.path.join(c, "build_showcase.py"))), "/mnt/skills/plugins/amazon-ads-prospect-audit/scripts")
 sys.path.insert(0, AUDIT_SCRIPTS)
 import brand as B                                                    # noqa: E402
+import xp_header as H                                                # noqa: E402  (shared XP header: hero + sticky links bar)
 from build_showcase import CSS as BASE_CSS, esc, donut, load_logo_b64, _CHART_JS, _month_label  # noqa: E402
 
 PAL = B.CATEGORY_PALETTE
 C_TY, C_LY, C_SPEND, C_LINE, C_LINE2 = PAL[2], "#a3a3a3", PAL[0], B.ACCENT, B.MUTED
 
 EXTRA_CSS = """
+table.data tr.yr-start td { border-top: 2px solid #111318; }
 body { font-feature-settings: "calt" 0, "liga" 0; font-variant-ligatures: none; }
 .kpi-cards { display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:24px; }
 @media (max-width: 900px) { .kpi-cards { grid-template-columns: repeat(2, 1fr); } }
@@ -257,9 +259,10 @@ def hbars(items, fmt=pct, color=PAL[2], cap=None):
         f'<span class="v">{fmt(v)}</span></div>' for n, v in items)
 
 
-def table(head, rows, cls="data compact"):
+def table(head, rows, cls="data compact", breaks=()):
+    """breaks: row indexes that start a new year / month (drawn with a heavier top rule)."""
     th = "".join(f'<th class="{"num" if a else ""}">{h}</th>' for h, a in head)
-    trs = "".join("<tr>" + "".join(f'<td class="{"num" if head[i][1] else ""}">{c}</td>' for i, c in enumerate(r)) + "</tr>" for r in rows)
+    trs = "".join(('<tr class="yr-start">' if n in breaks else "<tr>") + "".join(f'<td class="{"num" if head[i][1] else ""}">{c}</td>' for i, c in enumerate(r)) + "</tr>" for n, r in enumerate(rows))
     return f'<div class="table-scroll"><table class="{cls}"><thead><tr>{th}</tr></thead><tbody>{trs}</tbody></table></div>'
 
 
@@ -339,7 +342,8 @@ def tab_trends(f):
             r += [pct(x.get("tacos"))]
         r += [money(x.get("cpc"), 2), pct(x.get("ctr"), 2), pct(x.get("cvr"), 2)]
         mrows.append(r)
-    mtab = table(head, mrows)
+    ybreaks = {i for i in range(1, len(months)) if months[i]["month"][:4] != months[i - 1]["month"][:4]}
+    mtab = table(head, mrows, breaks=ybreaks)
     wk = f["weekly"]; wl = [w["week_end"][5:].replace("-", "/") for w in wk]
     wt = [f'Week {short_range(w["week_start"], w["week_end"])}' for w in wk]
     cw = combo_chart(wl, [("Ad Spend", [w["spend"] for w in wk], C_SPEND), ("Ad Sales", [w["sales"] for w in wk], C_TY)],
@@ -348,7 +352,8 @@ def tab_trends(f):
                       [("CTR", [w["ctr"] for w in wk], C_LINE, None), ("CVR", [w["cvr"] for w in wk], C_LINE2, "4,3")], left_fmt="int", label_every=2, tip_labels=wt)
     wrows = [[f'{w["week_start"][5:]} to {w["week_end"][5:]}', money(w["spend"]), money(w["sales"]), pct(w["acos"]), num(w["clicks"]),
               money(w["cpc"], 2), pct(w["ctr"], 2), pct(w["cvr"], 2)] for w in wk]
-    wtab = table([("Week", 0), ("Spend", 1), ("Ad Sales", 1), ("ACoS", 1), ("Clicks", 1), ("CPC", 1), ("CTR", 1), ("CVR", 1)], wrows)
+    wbreaks = {i for i in range(1, len(wk)) if wk[i]["week_end"][:7] != wk[i - 1]["week_end"][:7]}
+    wtab = table([("Week", 0), ("Spend", 1), ("Ad Sales", 1), ("ACoS", 1), ("Clicks", 1), ("CPC", 1), ("CTR", 1), ("CVR", 1)], wrows, breaks=wbreaks)
     return f"""
 <section id="trends">
   <h2>Trends</h2>
@@ -358,7 +363,7 @@ def tab_trends(f):
   <div class="card"><h3>Monthly Detail — 24-Month Overview</h3>{mtab}</div>
   <div class="card chart-card"><h3>Last 13 Weeks: Spend, Ad Sales, ACoS</h3><div class="chart-wrap">{cw}</div><!--chart-end--></div>
   <div class="card chart-card"><h3>Last 13 Weeks: Clicks, CTR, CVR</h3><div class="chart-wrap">{cw2}</div><!--chart-end--></div>
-  <div class="card"><h3>Weekly Detail — Last 13 Weeks</h3>{wtab}</div>
+  <div class="card"><h3>Weekly Detail — Last 13 Weeks</h3>{wtab}<p class="sub">A heavier line marks the first week ending in a new month.</p></div>
 </section>"""
 
 def alloc_block(title, items, note=""):
@@ -607,18 +612,23 @@ def build(findings, out, logo):
     dl.append(("Wasted spend & harvest (conversion-complete)", drange(*m["lag"])))
     dl.append(("Budget check (Amazon, 7 days)", f["budgets"]["window"] or "n/a"))
     dates = "".join(f"<div><b>{esc(k)}:</b> {esc(v)}</div>" for k, v in dl)
+    # Links bar, same keys as the account's links.json (publish_monthly.py); the hosted page
+    # fills the Drive and Slack pills and the Pages switcher from links.json on load.
+    sc = "https://sellercentral.amazon.com" if (m["has_sc"] and m["marketplace"] == "US") else None
+    links = {"items": [{"key": "drive_folder", "label": "Drive folder", "group": "client", "url": None},
+                       {"key": "slack_channel", "label": "Slack channel", "group": "client", "url": None},
+                       {"key": "seller_central", "label": "Seller Central", "group": "client", "url": sc},
+                       {"key": "ads_console", "label": "Ads console", "group": "client", "url": "https://advertising.amazon.com"}],
+             "client_files": [], "pages": []}
     doc = f"""<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{esc(m['display_brand'])} — Monthly Account Review</title>
-<style>{BASE_CSS}{EXTRA_CSS}</style></head><body>
-<header class="hero"><div class="hero-inner"><div class="hero-brand">{logo_html}
-<div class="hero-title"><strong>{B.REPORT_TITLE_PREFIX}</strong> &middot; Monthly Account Review &middot; {esc(m['display_brand'])}</div></div>
-<div class="hero-meta"><div>Marketplace: {esc(m['marketplace'])}</div>
-<div>Report Created: {m['report_date']}</div><div>Internal &middot; Account Team</div></div></div></header>
-<nav class="tabs"><ul>{nav}</ul></nav>
+<style>{BASE_CSS}{EXTRA_CSS}{H.HEADER_CSS}</style></head><body>
+{H.head_block(links, m["display_brand"], lb, m['marketplace'], m['report_date'], extra_bar=f'<nav class="tabs"><ul>{nav}</ul></nav>', period=short_range(*m["l30"]) + ", " + m["l30"][1][:4])}
 <main>{body}</main>
 <footer><div class="foot-dates">{dates}</div><div class="disclaimer">{B.DISCLAIMER}</div>
 <div style="margin-top:10px;opacity:0.6;">{B.BRAND_NAME} &middot; {esc(m['display_brand'])} &middot; {m['report_date']}</div></footer>
+{H.scripts_block(links)}
 </body></html>"""
     open(out, "w").write(doc)
     return out
