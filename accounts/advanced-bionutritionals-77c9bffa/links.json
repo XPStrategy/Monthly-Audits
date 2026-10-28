@@ -1,0 +1,47 @@
+{
+  "brand": "Advanced Bionutritionals",
+  "client": "advanced-bionutritionals",
+  "slack_channel": "xps-advanced-bionutritionals",
+  "slug": "advanced-bionutritionals-77c9bffa",
+  "marketplace": "US",
+  "updated": "2026-10-28T14:55:23+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1fACA1G7xSAFvJNq8EL-YIELlRxoqMQhZ"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C0A7B4PTDLG"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "2026-10",
+      "file": "2026-10.html",
+      "label": "October 2026",
+      "note": "Run Oct 28, 2026 \u00b7 L30 Sep 26 \u2013 Oct 25"
+    }
+  ],
+  "names": {
+    "base": "Advanced Bionutritionals - Monthly Account Review"
+  }
+}

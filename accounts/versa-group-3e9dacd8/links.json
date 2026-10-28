@@ -1,0 +1,47 @@
+{
+  "brand": "VersaGroup",
+  "client": "versa-group",
+  "slack_channel": "xps-versa-group",
+  "slug": "versa-group-3e9dacd8",
+  "marketplace": "US",
+  "updated": "2026-10-28T14:55:23+00:00",
+  "updated_date": "2026-10-28",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1s0q7Wl5NbLTs907T-PhDVQmtvWbiOt-4"
+    },
+    {
+      "key": "slack_channel",
+      "label": "Slack channel",
+      "group": "client",
+      "url": "https://app.slack.com/client/C07U6KR9F5X"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "2026-10",
+      "file": "2026-10.html",
+      "label": "October 2026",
+      "note": "Run Oct 28, 2026 \u00b7 L30 Sep 26 \u2013 Oct 25"
+    }
+  ],
+  "names": {
+    "base": "VersaGroup - Monthly Account Review"
+  }
+}
