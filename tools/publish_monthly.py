@@ -153,7 +153,15 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
     lj = os.path.join(out, "links.json")
     old = json.load(open(lj)) if os.path.exists(lj) else {}
 
-    shutil.copyfile(review, os.path.join(out, f"{month}.html"))
+    page = open(review, encoding="utf-8").read()
+    if 'id="xp-home-bar"' not in page:
+        bar = ('<div id="xp-home-bar" style="background:#fff;border-bottom:1px solid #e5e5e5;'
+               'font:600 12.5px/1 \'Helvetica Neue\',Arial,sans-serif;padding:10px 16px">'
+               '<a href="./" style="color:#111;text-decoration:none">&larr; Home &middot; '
+               'all monthly reviews</a></div>')
+        page = re.sub(r"(<body[^>]*>)", r"\1" + bar.replace("\\", "\\\\"), page, count=1)
+    with open(os.path.join(out, f"{month}.html"), "w", encoding="utf-8") as f:
+        f.write(page)
     pages = [p for p in old.get("pages", []) if p.get("file") != f"{month}.html"]
     pages.append({"key": month, "file": f"{month}.html", "label": month_label(month),
                   "note": note or "Monthly Account Review"})
