@@ -3,7 +3,7 @@
   "client": "trailheads-apparel",
   "slug": "trailheads-apparel-0ce99b2a",
   "marketplace": "US",
-  "updated": "2026-10-29T12:28:46+00:00",
+  "updated": "2026-10-29T18:15:18+00:00",
   "updated_date": "2026-10-29",
   "items": [
     {
@@ -27,6 +27,13 @@
   ],
   "client_files": [],
   "pages": [
+    {
+      "key": "2026-10",
+      "file": "2026-10.html",
+      "label": "October 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
@@ -68,6 +75,13 @@
     "base": "TrailHeads Apparel - Monthly Account Review"
   },
   "all_pages": [
+    {
+      "key": "2026-10",
+      "file": "2026-10.html",
+      "label": "October 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
