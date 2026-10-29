@@ -239,6 +239,12 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
     # The Home page lists everything; the full list is kept in "all_pages".
     nav = [p for p in meta["pages"] if p.get("kind") != "page"][:NAV_MONTHS] + [p for p in meta["pages"] if p.get("kind") == "page"]
     json.dump(dict(meta, pages=nav, all_pages=meta["pages"]), open(lj, "w"), indent=2)
+    try:   # keep the master hub (hub/index.html) in step with every account change
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import build_master
+        build_master.build(repo)
+    except Exception as e:  # never block a publish on the hub
+        print("[warn] master hub not rebuilt:", e, file=sys.stderr)
     with open(os.path.join(out, "index.html"), "w") as f:
         f.write(hub_html(meta))
     for p in meta["pages"]:
