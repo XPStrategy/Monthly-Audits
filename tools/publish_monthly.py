@@ -259,6 +259,9 @@ def enhance_folder(out, pages, pdf=True):
     and (re)render <page>.pdf for published pages whose content changed."""
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import site_enhance as SE
+    mp = os.path.join(os.path.dirname(os.path.abspath(__file__)), "marketplaces.json")
+    client = re.sub(r"-[0-9a-f]{8}$", "", os.path.basename(out.rstrip("/")))
+    markets = (json.load(open(mp)).get(client) if os.path.exists(mp) else None)
     state_p = os.path.join(out, "pdf_state.json")
     state = json.load(open(state_p)) if os.path.exists(state_p) else {}
     live = {p["file"] for p in pages if p.get("status") != "placeholder"}
@@ -269,7 +272,7 @@ def enhance_folder(out, pages, pdf=True):
         has_pdf = pdf and fn in live and fn != "index.html"
         pdf_name = fn[:-5] + ".pdf"
         SE.inject(path, SE.block(pages, SECTIONS, NAV_MONTHS, pdf=pdf_name if has_pdf else None,
-                                 printable=fn in live and fn != "index.html"))
+                                 printable=fn in live and fn != "index.html", markets=markets))
         if has_pdf:
             raw = re.sub(re.escape(SE.MARK_A) + r".*?" + re.escape(SE.MARK_B), "", open(path).read(), flags=re.S)
             h = hashlib.sha256(raw.encode()).hexdigest()

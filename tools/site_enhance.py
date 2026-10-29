@@ -61,8 +61,18 @@ JS = r"""
   }
   var PAGES = CFG.pages;
   function draw(){ render(PAGES); }
+  function markets(){
+    var M = CFG.markets; if (!M || !M.ads) return;
+    document.querySelectorAll('.xph-meta > div').forEach(function(d){
+      if (/^Marketplace:/.test(d.textContent.trim())) {
+        var t = 'Marketplaces: ' + M.ads.map(function(c, i){ return i ? c : c + ' (main)'; }).join(' \u00b7 ');
+        if (M.seller && M.seller.length) { t += ' \u00b7 +' + M.seller.length + ' Seller Central only'; d.title = 'Seller Central only (no ads in MAP): ' + M.seller.join(', '); }
+        d.textContent = t;
+      }
+    });
+  }
   function boot(){
-    draw();
+    draw(); markets();
     var box = document.querySelector('.lb-pages');
     if (box && window.MutationObserver) new MutationObserver(function(){ if (!box.querySelector('.xpg') && box.getAttribute('data-xp') !== '2') { box.setAttribute('data-xp','2'); draw(); box.setAttribute('data-xp','1'); } }).observe(box, {childList: true});
     document.addEventListener('click', function(ev){
@@ -79,8 +89,9 @@ JS = r"""
 """
 
 
-def block(pages, sections, nav_months, pdf=None, printable=True, hub="../../hub/"):
-    cfg = {"pages": pages, "sections": sections, "nav_months": nav_months, "pdf": pdf, "printable": printable, "hub": hub}
+def block(pages, sections, nav_months, pdf=None, printable=True, hub="../../hub/", markets=None):
+    cfg = {"pages": pages, "sections": sections, "nav_months": nav_months, "pdf": pdf, "printable": printable, "hub": hub,
+           "markets": markets}
     js = JS.replace("__CFG__", json.dumps(cfg).replace("</", "<\\/"))
     return f"{MARK_A}<style>{CSS}</style><script>{js}</script>{MARK_B}"
 

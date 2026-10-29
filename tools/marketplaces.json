@@ -1,0 +1,6 @@
+{
+ "_note": "Marketplaces shown in each account header, main first. ads = Sponsored Ads spend in MAP (last 30 days); seller = Seller Central-only marketplaces connected in MAP. Update when an account opens or closes a marketplace.",
+ "badass-moto": {"ads": ["US", "CA"]},
+ "trailheads-apparel": {"ads": ["US", "CA"], "seller": ["ES", "IT", "FR", "NL", "BE", "IE", "PL", "SE", "TR", "AE", "SA"]},
+ "ultimate-washer": {"ads": ["US", "CA"]}
+}
