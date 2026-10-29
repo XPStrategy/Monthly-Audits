@@ -613,10 +613,9 @@ def build(findings, out, logo):
     dl.append(("Budget check (Amazon, 7 days)", f["budgets"]["window"] or "n/a"))
     dates = "".join(f"<div><b>{esc(k)}:</b> {esc(v)}</div>" for k, v in dl)
     # Links bar, same keys as the account's links.json (publish_monthly.py); the hosted page
-    # fills the Drive and Slack pills and the Pages switcher from links.json on load.
+    # fills the Drive pill and the Pages switcher from links.json on load.
     sc = "https://sellercentral.amazon.com" if (m["has_sc"] and m["marketplace"] == "US") else None
     links = {"items": [{"key": "drive_folder", "label": "Drive folder", "group": "client", "url": None},
-                       {"key": "slack_channel", "label": "Slack channel", "group": "client", "url": None},
                        {"key": "seller_central", "label": "Seller Central", "group": "client", "url": sc},
                        {"key": "ads_console", "label": "Ads console", "group": "client", "url": "https://advertising.amazon.com"}],
              "client_files": [], "pages": []}
