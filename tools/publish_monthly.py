@@ -132,7 +132,7 @@ def hub_html(meta):
     document.getElementById('cards').innerHTML = c || '<p class="empty">No monthly review published yet. The first one lands on the 10th.</p>';
     var h = '';
     SECTIONS.forEach(function(s){{
-      if (by[s[0]]) h += '<h2 style="margin-top:34px">' + e(s[1]) + '</h2><div class="grid">' + by[s[0]] + '</div>';
+      h += '<h2 style="margin-top:34px">' + e(s[1]) + '</h2><div class="grid">' + (by[s[0]] || '<p class="empty">Nothing published yet.</p>') + '</div>';
     }});
     document.getElementById('sections').innerHTML = h;
   }}
@@ -157,7 +157,7 @@ RESERVED_PAGES = {
 }
 # Home page sections for non-review pages, in display order. A page's section comes from SECTION_OF[key]
 # (default "other"). Add e.g. ("category", "Category Reviews") here and map its keys below.
-SECTIONS = [("amc", "AMC Reviews"), ("other", "Other Pages")]
+SECTIONS = [("amc", "AMC Reviews"), ("inventory", "Inventory Forecast"), ("category", "Category & SEO Reviews"), ("other", "Other Reports")]
 SECTION_OF = {"new-to-brand": "amc", "repeat-purchase": "amc", "path-to-conversion": "amc", "time-to-conversion": "amc"}
 
 # Monthly reviews shown in the Pages switcher (newest first). Older reviews stay on the Home page.
