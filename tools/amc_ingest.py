@@ -86,7 +86,7 @@ def main():
         if i is None:
             continue
         for k in R:
-            v = f(r[src.get(k, k)])
+            v = f(r.get(src.get(k, k)))
             R[k][i] = round(v, 2) if k.endswith("sales") else int(v)
     json.dump(R, open(os.path.join(d, "repeat.json"), "w"))
 
@@ -95,7 +95,7 @@ def main():
     for r in load(d, "q4.json"):
         if not r.get("tracked_asin"):
             continue
-        out.append([r["tracked_asin"]] + [f(r[k]) for k in ("customers", "orders", "sales", "units", "sns_customers", "sns_orders", "sns_sales",
+        out.append([r["tracked_asin"]] + [f(r.get(k)) for k in ("customers", "orders", "sales", "units", "sns_customers", "sns_orders", "sns_sales",
                                                            "repeat_customers", "repeat_orders", "repeat_sales", "one_time_customers",
                                                            "one_time_orders", "one_time_sales")])
     json.dump(out, open(os.path.join(d, "asin_raw.json"), "w"))

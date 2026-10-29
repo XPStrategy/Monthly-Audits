@@ -55,15 +55,17 @@ def main(d):
         if not t:
             sup["ntb"] += v["ntb_purchases"]; sup["ntb_sales"] += v["ntb_sales"]; sup["spend"] += v["spend"]; sup["clicks"] += v["clicks"]
             continue
-        c = ("ASIN target" if re.fullmatch(r"b0[a-z0-9]{8}", t.lower()) else "Branded" if rx.search(t)
+        c = ("Long tail" if t == "zz_long_tail" else "ASIN target" if re.fullmatch(r"b0[a-z0-9]{8}", t.lower()) else "Branded" if rx.search(t)
              else "Competitor" if crx and crx.search(t) else "Generic")
         a = cls.setdefault(c, {"name": c, "ntb": 0, "ntb_sales": 0.0, "spend": 0.0, "clicks": 0})
         a["ntb"] += v["ntb_purchases"]; a["ntb_sales"] += v["ntb_sales"]; a["spend"] += v["spend"]; a["clicks"] += v["clicks"]
+        if c == "Long tail":
+            continue
         named.append({"term": t, "ad": r["ad_product_type"], "class": c, "ntb": v["ntb_purchases"], "ntb_sales": v["ntb_sales"],
                       "clicks": v["clicks"], "spend": v["spend"]})
     named.sort(key=lambda x: (-x["ntb"], -x["spend"]))
     out["search_terms"] = {"window": meta["window_label"],
-                           "classes": [cls[k] for k in ("Branded", "Generic", "Competitor", "ASIN target") if k in cls],
+                           "classes": [cls[k] for k in ("Branded", "Generic", "Competitor", "ASIN target", "Long tail") if k in cls],
                            "suppressed": sup, "top": named[:30], "named_count": len(named)}
 
     out["repeat"] = load(d, "repeat.json")

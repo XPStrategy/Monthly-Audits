@@ -3,7 +3,7 @@
   "client": "ultimate-footwear",
   "slug": "ultimate-footwear-fc24ed07",
   "marketplace": "US",
-  "updated": "2026-10-29T12:26:56+00:00",
+  "updated": "2026-10-29T21:41:46+00:00",
   "updated_date": "2026-10-29",
   "items": [
     {
@@ -37,36 +37,32 @@
       "key": "new-to-brand",
       "file": "new-to-brand.html",
       "label": "New-to-Brand",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB customers and orders by month and ad type, and the search terms that bring them",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "repeat-purchase",
       "file": "repeat-purchase.html",
       "label": "Repeat Purchase",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Subscribe & Save, repeat and one-time buyers by month and by ASIN",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "path-to-conversion",
       "file": "path-to-conversion.html",
       "label": "Path to Conversion",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Ad types buyers saw in the 30 days before purchase, month by month",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "time-to-conversion",
       "file": "time-to-conversion.html",
       "label": "Time to Conversion",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     }
   ],
@@ -84,36 +80,32 @@
       "key": "new-to-brand",
       "file": "new-to-brand.html",
       "label": "New-to-Brand",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB customers and orders by month and ad type, and the search terms that bring them",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "repeat-purchase",
       "file": "repeat-purchase.html",
       "label": "Repeat Purchase",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Subscribe & Save, repeat and one-time buyers by month and by ASIN",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "path-to-conversion",
       "file": "path-to-conversion.html",
       "label": "Path to Conversion",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Ad types buyers saw in the 30 days before purchase, month by month",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     },
     {
       "key": "time-to-conversion",
       "file": "time-to-conversion.html",
       "label": "Time to Conversion",
-      "note": "Not published yet",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
-      "status": "placeholder",
       "section": "amc"
     }
   ]
