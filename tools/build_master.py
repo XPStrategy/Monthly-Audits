@@ -71,8 +71,7 @@ def page(rs, today):
         trs.append(f'<tr data-slug="{esc(r["slug"])}" data-q="{esc((r["brand"] + " " + r["channel"]).lower())}">'
                    f'<td data-l="Account"><a class="hubl" href="{h}">{esc(r["brand"])}</a></td>'
                    f'<td data-l="Latest review">{lat}</td><td data-l="AMC Reviews">{amc}</td>'
-                   f'<td data-l="Drive">{lk(r["drive"], "Folder")}</td>'
-                   f'<td data-l="Slack">{lk(r["slack"], esc(r["channel"]) or "Channel")}</td></tr>')
+                   f'<td data-l="Drive">{lk(r["drive"], "Folder")}</td></tr>')
     n_rev = sum(1 for r in rs if r["latest"]); n_amc = sum(1 for r in rs if r["amc_live"])
     meta = {"items": [], "client_files": [], "pages": []}
     return f"""<!DOCTYPE html>
@@ -87,7 +86,7 @@ def page(rs, today):
   <input id="q" type="search" placeholder="Filter accounts" aria-label="Filter accounts">
   <span class="count" id="count">{len(rs)} accounts · {n_rev} with a monthly review · {n_amc} with AMC Reviews</span>
 </div>
-<div class="wrap"><table><thead><tr><th>Account</th><th>Latest review</th><th>AMC Reviews</th><th>Drive</th><th>Slack</th></tr></thead>
+<div class="wrap"><table><thead><tr><th>Account</th><th>Latest review</th><th>AMC Reviews</th><th>Drive</th></tr></thead>
 <tbody>{''.join(trs)}</tbody></table></div>
 <p class="source" style="font-size:12px;color:{B.MUTED};margin-top:8px">Source: each account's links.json in the Monthly-Audits repo, rebuilt on every publish.</p>
 </main>
