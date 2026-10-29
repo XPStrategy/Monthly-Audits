@@ -151,6 +151,9 @@ RESERVED_PAGES = {
     "path-to-conversion": ("Path to Conversion", "AMC ad types buyers saw before purchase, month by month"),
     "time-to-conversion": ("Time to Conversion", "AMC time from ad click to purchase by ad type"),
 }
+# Monthly reviews shown in the Pages switcher (newest first). Older reviews stay on the Home page.
+NAV_MONTHS = 3
+
 # Paths that were used before and are removed from every account on the next init or publish.
 RETIRED_FILES = {"amc.html", "amc-ntb.html", "amc-repeat.html", "amc-path.html", "amc-ttc.html"}
 
@@ -192,7 +195,7 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
     old = json.load(open(lj)) if os.path.exists(lj) else {}
     new_files = {p["file"] for p in add_pages}
     drop = set(drop_files) | RETIRED_FILES
-    pages = [p for p in old.get("pages", []) if p.get("file") not in new_files and p.get("file") not in drop]
+    pages = [p for p in old.get("all_pages", old.get("pages", [])) if p.get("file") not in new_files and p.get("file") not in drop]
     for fn in RETIRED_FILES:
         if os.path.exists(os.path.join(out, fn)):
             os.remove(os.path.join(out, fn))
@@ -219,7 +222,10 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
         "items": items, "client_files": [], "pages": _sort_pages(pages),
         "names": {"base": f"{brand} - Monthly Account Review"},
     }
-    json.dump(meta, open(lj, "w"), indent=2)
+    # links.json "pages" drives the Pages switcher on every page: newest NAV_MONTHS reviews + other pages.
+    # The Home page lists everything; the full list is kept in "all_pages".
+    nav = [p for p in meta["pages"] if p.get("kind") != "page"][:NAV_MONTHS] + [p for p in meta["pages"] if p.get("kind") == "page"]
+    json.dump(dict(meta, pages=nav, all_pages=meta["pages"]), open(lj, "w"), indent=2)
     with open(os.path.join(out, "index.html"), "w") as f:
         f.write(hub_html(meta))
     for p in meta["pages"]:

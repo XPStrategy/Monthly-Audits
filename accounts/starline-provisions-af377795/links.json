@@ -4,8 +4,8 @@
   "slack_channel": "xps-starline-provisions",
   "slug": "starline-provisions-af377795",
   "marketplace": "US",
-  "updated": "2026-10-28T23:11:20+00:00",
-  "updated_date": "2026-10-28",
+  "updated": "2026-10-29T10:12:05+00:00",
+  "updated_date": "2026-10-29",
   "items": [
     {
       "key": "drive_folder",
@@ -69,5 +69,39 @@
   ],
   "names": {
     "base": "Starline Provisions - Monthly Account Review"
-  }
+  },
+  "all_pages": [
+    {
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder"
+    }
+  ]
 }
