@@ -1,0 +1,108 @@
+{
+  "brand": "Altun",
+  "client": "altun",
+  "slug": "altun-f2e0d35f",
+  "marketplace": "US",
+  "updated": "2026-10-29T13:16:17+00:00",
+  "updated_date": "2026-10-29",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1_Wpvvc5f7fpSAfefo3tcwBLF2RNPrb4L"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    }
+  ],
+  "names": {
+    "base": "Altun - Monthly Account Review"
+  },
+  "all_pages": [
+    {
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    }
+  ]
+}
