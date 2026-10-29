@@ -4,7 +4,7 @@
   "slack_channel": "xps-versa-group",
   "slug": "versa-group-3e9dacd8",
   "marketplace": "US",
-  "updated": "2026-10-29T10:12:06+00:00",
+  "updated": "2026-10-29T10:27:20+00:00",
   "updated_date": "2026-10-29",
   "items": [
     {
@@ -46,7 +46,8 @@
       "label": "New-to-Brand",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "repeat-purchase",
@@ -54,7 +55,8 @@
       "label": "Repeat Purchase",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "path-to-conversion",
@@ -62,7 +64,8 @@
       "label": "Path to Conversion",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "time-to-conversion",
@@ -70,7 +73,8 @@
       "label": "Time to Conversion",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     }
   ],
   "names": {
@@ -89,7 +93,8 @@
       "label": "New-to-Brand",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "repeat-purchase",
@@ -97,7 +102,8 @@
       "label": "Repeat Purchase",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "path-to-conversion",
@@ -105,7 +111,8 @@
       "label": "Path to Conversion",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     },
     {
       "key": "time-to-conversion",
@@ -113,7 +120,8 @@
       "label": "Time to Conversion",
       "note": "Not published yet",
       "kind": "page",
-      "status": "placeholder"
+      "status": "placeholder",
+      "section": "amc"
     }
   ]
 }

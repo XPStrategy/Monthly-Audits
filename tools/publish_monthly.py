@@ -114,7 +114,7 @@ def hub_html(meta):
 </head><body>
 {H.head_block(meta, brand_name, logo_b64(), meta.get('marketplace') or '', meta.get('updated_date') or '')}
 <main><h2>Monthly Account Reviews</h2><div class="grid" id="cards"></div>
-<h2 style="margin-top:34px">Other Pages</h2><div class="grid" id="extra"></div></main>
+<div id="sections"></div></main>
 {H.footer_html(B.DISCLAIMER, 'one review per month, newest first', brand_name, meta.get('updated_date') or '')}
 <script type="application/json" id="hub-seed">{seed}</script>
 {H.scripts_block(meta)}
@@ -122,20 +122,25 @@ def hub_html(meta):
 (function(){{
   var M = JSON.parse(document.getElementById('hub-seed').textContent);
   function e(t){{ var d = document.createElement('div'); d.textContent = t || ''; return d.innerHTML; }}
+  var SECTIONS = {json.dumps(SECTIONS)};
   function render(){{
-    var c = '', x = '', first = true;
+    var c = '', first = true, by = {{}};
     (M.pages || []).forEach(function(p){{
       var card = '<a class="card' + (p.status === 'placeholder' ? ' off' : '') + (p.kind !== 'page' && first ? ' latest' : '') + '" href="' + e(p.file) + '"><b>' + e(p.label) + '</b><span>'
          + e(p.note || 'Open') + '</span></a>';
-      if (p.kind === 'page') x += card; else {{ c += card; first = false; }}
+      if (p.kind === 'page') {{ var k = p.section || 'other'; by[k] = (by[k] || '') + card; }} else {{ c += card; first = false; }}
     }});
     document.getElementById('cards').innerHTML = c || '<p class="empty">No monthly review published yet. The first one lands on the 10th.</p>';
-    document.getElementById('extra').innerHTML = x || '<p class="empty">No other pages yet.</p>';
+    var h = '';
+    SECTIONS.forEach(function(s){{
+      if (by[s[0]]) h += '<h2 style="margin-top:34px">' + e(s[1]) + '</h2><div class="grid">' + by[s[0]] + '</div>';
+    }});
+    document.getElementById('sections').innerHTML = h;
   }}
   render();
   if (location.protocol.indexOf('http') === 0) {{
     fetch('links.json', {{cache: 'no-store'}}).then(function(r){{ return r.ok ? r.json() : null; }})
-      .then(function(j){{ if (j && j.pages) {{ M.pages = j.pages; render(); }} }}).catch(function(){{}});
+      .then(function(j){{ if (j && (j.all_pages || j.pages)) {{ M.pages = j.all_pages || j.pages; render(); }} }}).catch(function(){{}});
   }}
 }})();
 </script>
@@ -151,6 +156,11 @@ RESERVED_PAGES = {
     "path-to-conversion": ("Path to Conversion", "AMC ad types buyers saw before purchase, month by month"),
     "time-to-conversion": ("Time to Conversion", "AMC time from ad click to purchase by ad type"),
 }
+# Home page sections for non-review pages, in display order. A page's section comes from SECTION_OF[key]
+# (default "other"). Add e.g. ("category", "Category Reviews") here and map its keys below.
+SECTIONS = [("amc", "AMC Reviews"), ("other", "Other Pages")]
+SECTION_OF = {"new-to-brand": "amc", "repeat-purchase": "amc", "path-to-conversion": "amc", "time-to-conversion": "amc"}
+
 # Monthly reviews shown in the Pages switcher (newest first). Older reviews stay on the Home page.
 NAV_MONTHS = 3
 
@@ -200,11 +210,14 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
         if os.path.exists(os.path.join(out, fn)):
             os.remove(os.path.join(out, fn))
     pages += list(add_pages)
+    for p in pages:
+        if p.get("kind") == "page":
+            p["section"] = SECTION_OF.get(p["key"], p.get("section") or "other")
     have = {p["file"] for p in pages}
     for key, (label, note) in RESERVED_PAGES.items():
         if f"{key}.html" not in have:
             pages.append({"key": key, "file": f"{key}.html", "label": label, "note": "Not published yet",
-                          "kind": "page", "status": "placeholder"})
+                          "kind": "page", "status": "placeholder", "section": SECTION_OF.get(key, "other")})
     items = link_items(marketplace, drive_folder, slack_channel_id)
     prev = {i["key"]: i for i in old.get("items", [])}
     for i in items:
