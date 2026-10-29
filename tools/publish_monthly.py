@@ -252,7 +252,35 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
             label, note = RESERVED_PAGES.get(p["key"], (p["label"], p["label"]))
             with open(os.path.join(out, p["file"]), "w") as f:
                 f.write(placeholder_html(meta, p["key"], label, note))
+    enhance_folder(out, meta["pages"])
     return slug, meta
+
+
+def enhance_folder(out, pages, pdf=True):
+    """Inject the grouped Pages switcher, hub and PDF buttons into every page in the account folder,
+    and (re)render <page>.pdf for published pages whose content changed."""
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import site_enhance as SE
+    state_p = os.path.join(out, "pdf_state.json")
+    state = json.load(open(state_p)) if os.path.exists(state_p) else {}
+    live = {p["file"] for p in pages if p.get("status") != "placeholder"}
+    for fn in sorted(os.listdir(out)):
+        if not fn.endswith(".html"):
+            continue
+        path = os.path.join(out, fn)
+        has_pdf = pdf and fn in live and fn != "index.html"
+        pdf_name = fn[:-5] + ".pdf"
+        SE.inject(path, SE.block(pages, SECTIONS, NAV_MONTHS, pdf=pdf_name if has_pdf else None,
+                                 printable=fn in live and fn != "index.html"))
+        if has_pdf:
+            raw = re.sub(re.escape(SE.MARK_A) + r".*?" + re.escape(SE.MARK_B), "", open(path).read(), flags=re.S)
+            h = hashlib.sha256(raw.encode()).hexdigest()
+            if state.get(fn) != h or not os.path.exists(os.path.join(out, pdf_name)):
+                try:
+                    SE.render_pdf(path, os.path.join(out, pdf_name)); state[fn] = h
+                except Exception as e:
+                    print("[warn] PDF not rendered for", fn, e, file=sys.stderr)
+    json.dump(state, open(state_p, "w"), indent=1)
 
 
 def link_items(marketplace, drive_folder, slack_channel_id):
