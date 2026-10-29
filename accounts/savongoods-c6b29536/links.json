@@ -1,7 +1,6 @@
 {
   "brand": "SavonGoods",
   "client": "savongoods",
-  "slack_channel": "xps-savongoods",
   "slug": "savongoods-c6b29536",
   "marketplace": "US",
   "updated": "2026-10-29T10:42:33+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1Ple_RP34Rg2AumkxA4zID-GdM8KeMYCg"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/G0157U6J16H"
     },
     {
       "key": "seller_central",

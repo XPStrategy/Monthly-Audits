@@ -1,7 +1,6 @@
 {
   "brand": "Advanced Bionutritionals",
   "client": "advanced-bionutritionals",
-  "slack_channel": "xps-advanced-bionutritionals",
   "slug": "advanced-bionutritionals-77c9bffa",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:26+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1fACA1G7xSAFvJNq8EL-YIELlRxoqMQhZ"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0A7B4PTDLG"
     },
     {
       "key": "seller_central",

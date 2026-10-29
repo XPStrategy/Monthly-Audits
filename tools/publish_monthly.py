@@ -7,9 +7,9 @@ Writes, inside a local clone of this repo:
 
     accounts/<client>-<8 hex>/index.html     Home: one card per month, newest first (the ONE link)
     accounts/<client>-<8 hex>/<yyyy-mm>.html  that month's review
-    accounts/<client>-<8 hex>/links.json      months + links (Drive folder, Slack channel, consoles)
+    accounts/<client>-<8 hex>/links.json      months + links (Drive folder, consoles)
 
-<client> is the Slack channel name without "xps-" (cosmo-technologies, displate ...).
+<client> is the client slug, the Drive folder name without "xps-" (cosmo-technologies, displate ...).
 The 8-hex suffix is derived from the client slug, so every month lands in the same folder
 and the link never changes. Previous months are kept; re-publishing a month replaces it.
 
@@ -19,11 +19,11 @@ downloads them from there by name. Never move them.
 Usage:
     python3 tools/publish_monthly.py --repo . --client cosmo-technologies \
         --brand "JrTrack by Cosmo" --month 2026-11 --review Cosmo_Monthly_Account_Review.html \
-        [--drive-folder <folder id>] [--slack-channel-id <C...>] [--marketplace US] \
+        [--drive-folder <folder id>] [--marketplace US] \
         [--commit] [--push]
 
     python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" \
-        --drive-folder <id> --slack-channel-id <C...>          # empty Home, reserved pages
+        --drive-folder <id>          # empty Home, reserved pages
     python3 tools/publish_monthly.py page --repo . --client xps-<client> --brand "<Brand>" \
         --key amc --label "AMC Analysis" --file amc.html       # replaces the AMC placeholder
 
@@ -43,7 +43,6 @@ import sys
 from datetime import date, datetime, timezone
 
 PAGES_BASE = "https://xpstrategy.github.io/Monthly-Audits"
-SLACK_TEAM = "https://app.slack.com/client"   # channel links open in the Slack web app
 
 # Shared XP header (same hero, links bar and footer as the prospect audit pages).
 _cands = [os.environ.get("XP_AUDIT_SCRIPTS", "")]
@@ -227,7 +226,6 @@ def write_hub(repo, client, brand, marketplace="US", drive_folder=None, slack_ch
     meta = {
         "brand": brand,
         "client": re.sub(r"^xps-", "", client),
-        "slack_channel": "xps-" + re.sub(r"^xps-", "", client),
         "slug": slug,
         "marketplace": marketplace or old.get("marketplace") or "US",
         "updated": datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -288,8 +286,6 @@ def link_items(marketplace, drive_folder, slack_channel_id):
     return [
         {"key": "drive_folder", "label": "Drive folder", "group": "client",
          "url": f"https://drive.google.com/drive/folders/{drive_folder}" if drive_folder else None},
-        {"key": "slack_channel", "label": "Slack channel", "group": "client",
-         "url": f"{SLACK_TEAM}/{slack_channel_id}" if slack_channel_id else None},
         {"key": "seller_central", "label": "Seller Central", "group": "client", "url": sc},
         {"key": "ads_console", "label": "Ads console", "group": "client", "url": "https://advertising.amazon.com"},
     ]
@@ -343,7 +339,7 @@ def main():
     p.add_argument("mode", nargs="?", default="review", choices=["review", "init", "page"],
                    help="review: publish a month (default) · init: create the account's Home only · page: publish an extra page")
     p.add_argument("--repo", required=True)
-    p.add_argument("--client", required=True, help="Slack channel name, with or without xps-")
+    p.add_argument("--client", required=True, help="client slug, with or without xps-")
     p.add_argument("--brand", required=True)
     p.add_argument("--month", help="YYYY-MM of the run (review)")
     p.add_argument("--review", help="the month's review HTML (review)")
@@ -352,7 +348,7 @@ def main():
     p.add_argument("--file", help="page HTML (page)")
     p.add_argument("--marketplace", default="US")
     p.add_argument("--drive-folder")
-    p.add_argument("--slack-channel-id")
+    p.add_argument("--slack-channel-id", help=argparse.SUPPRESS)  # accepted and ignored (Slack links removed)
     p.add_argument("--note")
     p.add_argument("--commit", action="store_true")
     p.add_argument("--push", action="store_true")

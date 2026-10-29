@@ -1,7 +1,6 @@
 {
   "brand": "Starline Provisions",
   "client": "starline-provisions",
-  "slack_channel": "xps-starline-provisions",
   "slug": "starline-provisions-af377795",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:47+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1w9hjv1tZfy1AfQO4gES5QfxgpRHYfZ9c"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0A8TC8MPN0"
     },
     {
       "key": "seller_central",

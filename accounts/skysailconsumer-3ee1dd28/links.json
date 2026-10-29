@@ -1,7 +1,6 @@
 {
   "brand": "SkySail Consumer",
   "client": "skysailconsumer",
-  "slack_channel": "xps-skysailconsumer",
   "slug": "skysailconsumer-3ee1dd28",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:46+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1p0RRPw1xa5jHA76H518DxkVRANrObNEl"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C08P3FEBYQM"
     },
     {
       "key": "seller_central",

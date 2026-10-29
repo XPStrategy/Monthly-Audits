@@ -1,7 +1,6 @@
 {
   "brand": "Leading Choice Products",
   "client": "leading-choice-products",
-  "slack_channel": "xps-leading-choice-products",
   "slug": "leading-choice-products-fd0d9aab",
   "marketplace": "US",
   "updated": "2026-10-29T10:42:31+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1fbZe0hjaCIOGiMppTteZvPsqGJgWe4r0"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C04AEHXQN23"
     },
     {
       "key": "seller_central",

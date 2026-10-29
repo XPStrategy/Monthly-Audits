@@ -1,7 +1,6 @@
 {
   "brand": "TrailHeads Apparel",
   "client": "trailheads-apparel",
-  "slack_channel": "xps-trailheads-apparel",
   "slug": "trailheads-apparel-0ce99b2a",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:48+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1bRwxBOvOU1tO-VyAOK-2ZW83Mrath8Gc"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0AJL5QEQG3"
     },
     {
       "key": "seller_central",

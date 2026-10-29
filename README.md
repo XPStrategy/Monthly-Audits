@@ -13,7 +13,7 @@ accounts/<client>-<8 hex>/
   index.html               Home: one card per month, newest first (the link the AM opens)
   <yyyy-mm>.html           that month's review
   amc.html                 AMC Analysis (reserved: placeholder until published)
-  links.json               months + links (Drive folder, Slack channel, consoles)
+  links.json               months + links (Drive folder, consoles)
 index.html                 blank landing page, lists nothing
 robots.txt                 Disallow: /
 ```
@@ -36,7 +36,7 @@ All 29 `#xps-` channels have `accounts/<client>-<8 hex>/` with a Home page and a
 even before their first review. The Drive folder holds `[LINK] <Brand> - XP Strategy - Internal Audit Page`
 with the paths.
 
-- New account: `python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" --drive-folder <id> --slack-channel-id <id>`
+- New account: `python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" --drive-folder <id>`
 - Extra page (AMC or any other): `python3 tools/publish_monthly.py page --repo . --client xps-<client> --brand "<Brand>" --key amc --label "AMC Analysis" --file amc.html`
   The page appears under "Other Pages" on Home and in every page's Pages switcher. To reserve a new path
   for every account, add it to `RESERVED_PAGES` in the script and re-run `init`.
@@ -44,7 +44,7 @@ with the paths.
 ## Monthly run (10th of each month)
 
 1. Run `xp-monthly-account-review` for the account (MAP data, no manual input).
-2. Publish: `python3 tools/publish_monthly.py --repo . --client <client> --brand "<Brand>" --month <yyyy-mm> --review <html> --drive-folder <id> --slack-channel-id <id> --commit --push`
+2. Publish: `python3 tools/publish_monthly.py --repo . --client <client> --brand "<Brand>" --month <yyyy-mm> --review <html> --drive-folder <id> --commit --push`
 3. Save the run files (`config.json`, `findings.json`, MAP results) in the client's Drive folder `Source/<yyyy-mm>`.
 4. Draft the `#xps-<client>` post (alert counts, lead alert, Home link); send after approval.
 
@@ -52,7 +52,7 @@ with the paths.
 
 GitHub Pages is public to anyone holding a link, including for this public repo. Protection: fixed
 random suffix per client, `noindex` on every page, `robots.txt`, a root page that lists nothing.
-The Drive and Slack links on a page still need an XP login. Never put notes about people,
+The Drive link on a page still needs an XP login. Never put notes about people,
 pricing or credentials in a page or `links.json`. Raw MAP data stays in Drive.
 
 ## One-time setup

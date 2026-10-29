@@ -1,7 +1,6 @@
 {
   "brand": "BingO1525",
   "client": "bingo1525",
-  "slack_channel": "xps-bingo1525",
   "slug": "bingo1525-2b40878e",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:27+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1NiEUuTYtScNnrt2TC_BTpzf06GXey4Ce"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C06MVND5GEQ"
     },
     {
       "key": "seller_central",

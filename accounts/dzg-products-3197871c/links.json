@@ -1,7 +1,6 @@
 {
   "brand": "DZG Products",
   "client": "dzg-products",
-  "slack_channel": "xps-dzg-products",
   "slug": "dzg-products-3197871c",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:37+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1wNoo8iq9LJWzmeE_J2JbUg1c39fECuXW"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C06UAP6CU13"
     },
     {
       "key": "seller_central",

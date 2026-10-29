@@ -1,7 +1,6 @@
 {
   "brand": "Steam Clip",
   "client": "steam-clip",
-  "slack_channel": "xps-steam-clip",
   "slug": "steam-clip-3ba3866d",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:47+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/15qJmxGx95HBq4FqFubk6kOUOQsEcS3ru"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C05UXAP6RFF"
     },
     {
       "key": "seller_central",

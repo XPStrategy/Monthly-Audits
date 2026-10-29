@@ -1,7 +1,6 @@
 {
   "brand": "M-D Building Products",
   "client": "md-buildingproducts",
-  "slack_channel": "xps-md-buildingproducts",
   "slug": "md-buildingproducts-41fda16f",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:39+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1OC15-JK-FHvsSbW1ft3Zvh4C3GCwmUDm"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0ABP8X32N8"
     },
     {
       "key": "seller_central",

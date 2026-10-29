@@ -1,7 +1,6 @@
 {
   "brand": "Ultimate Washer",
   "client": "ultimate-washer",
-  "slack_channel": "xps-ultimate-washer",
   "slug": "ultimate-washer-1fbdd20a",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:51+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1iUmXA472yRKf4LbseD28EJn41Olq_YtM"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0C27LPE6G7"
     },
     {
       "key": "seller_central",

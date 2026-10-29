@@ -1,7 +1,6 @@
 {
   "brand": "Inglesina",
   "client": "inglesina",
-  "slack_channel": "xps-inglesina",
   "slug": "inglesina-77b5c745",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:38+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/173XQjjHwpPwvTI3WlKExKKlD6qFMaQKz"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0A9FFTM4TZ"
     },
     {
       "key": "seller_central",

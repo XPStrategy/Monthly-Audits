@@ -1,7 +1,6 @@
 {
   "brand": "Turmskin",
   "client": "turmskin",
-  "slack_channel": "xps-turmskin",
   "slug": "turmskin-04b645cf",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:48+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1MIYSHlWjqfDF6GO4eU-2MCboJbOJXnsP"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0CABB31T8X"
     },
     {
       "key": "seller_central",

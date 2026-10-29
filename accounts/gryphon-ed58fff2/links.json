@@ -1,7 +1,6 @@
 {
   "brand": "Gryphon",
   "client": "gryphon",
-  "slack_channel": "xps-gryphon",
   "slug": "gryphon-ed58fff2",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:38+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1TMWPSY2cuGXWc2fvz9HZSlZZIvpIKsCh"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0519SNTZQT"
     },
     {
       "key": "seller_central",

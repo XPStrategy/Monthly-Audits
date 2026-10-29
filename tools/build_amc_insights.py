@@ -422,7 +422,6 @@ def page_doc(f, lb, title, sections, kfn):
     nav = "".join(f'<li><a href="#{keymap[k]}">{SEC_LABEL[keymap[k]]}</a></li>' for k in secs) if len(secs) > 1 else ""
     dates = "".join(f"<div><b>{esc(k)}:</b> {esc(v)}</div>" for k, v in m["windows"])
     links = {"items": [{"key": "drive_folder", "label": "Drive folder", "group": "client", "url": None},
-                       {"key": "slack_channel", "label": "Slack channel", "group": "client", "url": None},
                        {"key": "seller_central", "label": "Seller Central", "group": "client", "url": "https://sellercentral.amazon.com"},
                        {"key": "ads_console", "label": "Ads console", "group": "client", "url": "https://advertising.amazon.com"}],
              "client_files": [], "pages": []}

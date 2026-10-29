@@ -1,7 +1,6 @@
 {
   "brand": "Southern Dental (FireFly)",
   "client": "southerndental",
-  "slack_channel": "xps-southerndental",
   "slug": "southerndental-ba83d4d8",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:47+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/18Tgp9P-IUDL-z4W2wpCG4V4x2gLcdHpR"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C08PGRX8MA9"
     },
     {
       "key": "seller_central",

@@ -1,7 +1,6 @@
 {
   "brand": "Displate",
   "client": "displate",
-  "slack_channel": "xps-displate",
   "slug": "displate-e6a7e140",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:37+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1_1ZxUsIVyo1nmppImbI3IIo3vxWqqPHD"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C09FQSRH7HC"
     },
     {
       "key": "seller_central",

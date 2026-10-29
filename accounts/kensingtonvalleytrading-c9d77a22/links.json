@@ -1,7 +1,6 @@
 {
   "brand": "Kensington Valley Trading",
   "client": "kensingtonvalleytrading",
-  "slack_channel": "xps-kensingtonvalleytrading",
   "slug": "kensingtonvalleytrading-c9d77a22",
   "marketplace": "US",
   "updated": "2026-10-29T10:42:28+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1oS74AmdMsmumccZDuICmxSYuYrh_RQ0p"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/G0159T2578U"
     },
     {
       "key": "seller_central",

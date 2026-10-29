@@ -1,7 +1,6 @@
 {
   "brand": "Nutrivein",
   "client": "nutrivein",
-  "slack_channel": "xps-nutrivein",
   "slug": "nutrivein-9028f477",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:39+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1wXyxHee_9rFGysWKu8Nq2z7Ho_65r8PA"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C0A6ADHV8LT"
     },
     {
       "key": "seller_central",

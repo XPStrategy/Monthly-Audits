@@ -49,11 +49,11 @@ def rows(repo):
         reviews = [p for p in pages if p.get("kind") != "page"]
         amc = [p for p in pages if p.get("key") in AMC_KEYS]
         url = {i["key"]: i.get("url") for i in m.get("items", [])}
-        out.append({"brand": m["brand"], "slug": slug, "channel": m.get("slack_channel", ""),
+        out.append({"brand": m["brand"], "slug": slug, 
                     "latest": reviews[0] if reviews else None, "n_reviews": len(reviews),
                     "amc_live": sum(1 for p in amc if p.get("status") != "placeholder"), "amc_total": len(amc),
                     "amc_first": next((p["file"] for p in amc), None),
-                    "drive": url.get("drive_folder"), "slack": url.get("slack_channel")})
+                    "drive": url.get("drive_folder")})
     return sorted(out, key=lambda r: r["brand"].lower())
 
 
@@ -68,7 +68,7 @@ def page(rs, today):
         amc = (f'<a href="{h}{esc(r["amc_first"])}"><span class="pill on">{r["amc_live"]} of {r["amc_total"]} live</span></a>'
                if r["amc_live"] else f'<span class="pill">Not published</span>')
         lk = lambda u, t: f'<a href="{esc(u)}" target="_blank" rel="noopener">{t}</a>' if u else '<span class="na">—</span>'
-        trs.append(f'<tr data-slug="{esc(r["slug"])}" data-q="{esc((r["brand"] + " " + r["channel"]).lower())}">'
+        trs.append(f'<tr data-slug="{esc(r["slug"])}" data-q="{esc(r["brand"].lower())}">'
                    f'<td data-l="Account"><a class="hubl" href="{h}">{esc(r["brand"])}</a></td>'
                    f'<td data-l="Latest review">{lat}</td><td data-l="AMC Reviews">{amc}</td>'
                    f'<td data-l="Drive">{lk(r["drive"], "Folder")}</td></tr>')

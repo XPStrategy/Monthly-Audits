@@ -1,7 +1,6 @@
 {
   "brand": "Ultimate Footwear (Josmo)",
   "client": "ultimate-footwear",
-  "slack_channel": "xps-ultimate-footwear",
   "slug": "ultimate-footwear-fc24ed07",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:49+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1nihR3sxhH4iEvUJLOtrj31XNBddsNaDr"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C04H5DXFT1C"
     },
     {
       "key": "seller_central",

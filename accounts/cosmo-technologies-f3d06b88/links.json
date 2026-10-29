@@ -1,7 +1,6 @@
 {
   "brand": "JrTrack by Cosmo",
   "client": "cosmo-technologies",
-  "slack_channel": "xps-cosmo-technologies",
   "slug": "cosmo-technologies-f3d06b88",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:28+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1FdQNe4q46fVjRptSucfg2PlrtS8DXE5d"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C03PVMVCZHU"
     },
     {
       "key": "seller_central",

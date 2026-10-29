@@ -1,7 +1,6 @@
 {
   "brand": "Boroux",
   "client": "boroux",
-  "slack_channel": "xps-boroux",
   "slug": "boroux-c027fc12",
   "marketplace": "US",
   "updated": "2026-10-29T10:41:27+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1i2kCeOwYC1Mdginurk6qVNrzauKLfddp"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C076BNPBYD9"
     },
     {
       "key": "seller_central",

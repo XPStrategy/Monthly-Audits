@@ -1,7 +1,6 @@
 {
   "brand": "Spring Mount Supply",
   "client": "spring-mount-supply",
-  "slack_channel": "xps-spring-mount-supply",
   "slug": "spring-mount-supply-329e5a10",
   "marketplace": "US",
   "updated": "2026-10-29T10:42:35+00:00",
@@ -12,12 +11,6 @@
       "label": "Drive folder",
       "group": "client",
       "url": "https://drive.google.com/drive/folders/1mFp2HpaHeJuQL-ztTLTs0r5Gd57u-HrN"
-    },
-    {
-      "key": "slack_channel",
-      "label": "Slack channel",
-      "group": "client",
-      "url": "https://app.slack.com/client/C03D1C3HATV"
     },
     {
       "key": "seller_central",
