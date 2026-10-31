@@ -113,9 +113,11 @@ def main(d):
         f"Spend per NTB order: ${cpa[0]:,.0f} in {L[0]} → ${cpa[-1]:,.0f} in {L[-1]}.",
         (f"Branded searches brought {pct(br['ntb'] / gtot)} of NTB orders at ${br['spend'] / br['ntb']:,.0f} per NTB order." if br and br["ntb"] else ""),
         (f"SnS share of sales: {pct(sns[0])} in {L[0]} → {pct(sns[-1])} in {L[-1]}; SnS sign-ups {Rp['signups'][0] or 0:,} → {Rp['signups'][-1] or 0:,} per month." if sum(Rp["signups"]) else f"Repeat buyers: {pct(Rp['repeat_sales'][0] / Rp['sales'][0])} of sales in {L[0]} → {pct(Rp['repeat_sales'][-1] / Rp['sales'][-1])} in {L[-1]}; no Subscribe & Save activity."),
-        f"Buyers who saw more than one ad type before buying: {pct(multi(0))} in {L[0]} → {pct(multi(len(L) - 1))} in {L[-1]}.",
+        (f"Buyers who saw more than one ad type before buying: {pct(multi(0))} in {L[0]} → {pct(multi(len(L) - 1))} in {L[-1]}."
+         if any("+" in k for k in order) else "Every ad-exposed buyer saw Sponsored Products only (no Sponsored Brands or Display activity)."),
         f"{pct(sp_1h)} of click-attributed Sponsored Products purchases happen within 1 hour of the click.",
     ]
+    out["highlights"] = [h for h in out["highlights"] if h]
     json.dump(out, open(os.path.join(d, "amc_findings.json"), "w"), indent=1)
     print("[done]", os.path.join(d, "amc_findings.json"))
 
