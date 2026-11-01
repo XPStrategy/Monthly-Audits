@@ -3,5 +3,9 @@
  "new-to-brand.html": "ec61b3df3886103e6f166f235e60528f8b3df6b47ba262c185116a3eeece7b89",
  "repeat-purchase.html": "a0b03d23e583d3639dc20696b7474f5d963eb1fb849852341601cf8a8ac70f70",
  "path-to-conversion.html": "bd5cfe5686eb05f9b66e1f6b3de12facc195fca6ff7b94b928e17c8a7b2ac727",
- "time-to-conversion.html": "d4f7a0b9040cd8d2c6743e53cd26d584624e69744ec173edece99c8e52c6f7e7"
+ "time-to-conversion.html": "d4f7a0b9040cd8d2c6743e53cd26d584624e69744ec173edece99c8e52c6f7e7",
+ "vc-new-to-brand.html": "6d13af3fc46faf00a943eb36cb4eb727bd67465e4b2f5acb27c7d281d8e949bc",
+ "vc-repeat-purchase.html": "9933526eac3ac66417535e137d6c64b24627290bce648ab73b3a123bed22f938",
+ "vc-path-to-conversion.html": "ab868c491989b1729341df520bf78e3d49a42cedeba7c9a038303a09d333de88",
+ "vc-time-to-conversion.html": "e1dc5304da94f3fdb59e85853b3d6e8021f654d6a5bfb3036127f52922dd98ac"
 }

@@ -3,8 +3,8 @@
   "client": "versa-group",
   "slug": "versa-group-3e9dacd8",
   "marketplace": "US",
-  "updated": "2026-10-30T23:58:27+00:00",
-  "updated_date": "2026-10-30",
+  "updated": "2026-11-01T00:53:59+00:00",
+  "updated_date": "2026-10-31",
   "items": [
     {
       "key": "drive_folder",
@@ -64,6 +64,38 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "vc-new-to-brand",
+      "file": "vc-new-to-brand.html",
+      "label": "New-to-Brand (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB customers and orders by month and ad type, and the search terms that bring them",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-path-to-conversion",
+      "file": "vc-path-to-conversion.html",
+      "label": "Path to Conversion (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Ad types buyers saw in the 30 days before purchase, month by month",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-repeat-purchase",
+      "file": "vc-repeat-purchase.html",
+      "label": "Repeat Purchase (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Repeat and one-time buyers by month and by ASIN",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-time-to-conversion",
+      "file": "vc-time-to-conversion.html",
+      "label": "Time to Conversion (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
+      "kind": "page",
+      "section": "amc"
     }
   ],
   "names": {
@@ -104,6 +136,38 @@
       "key": "time-to-conversion",
       "file": "time-to-conversion.html",
       "label": "Time to Conversion",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-new-to-brand",
+      "file": "vc-new-to-brand.html",
+      "label": "New-to-Brand (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 NTB customers and orders by month and ad type, and the search terms that bring them",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-path-to-conversion",
+      "file": "vc-path-to-conversion.html",
+      "label": "Path to Conversion (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Ad types buyers saw in the 30 days before purchase, month by month",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-repeat-purchase",
+      "file": "vc-repeat-purchase.html",
+      "label": "Repeat Purchase (Vendor Central)",
+      "note": "Jan \u2013 Sep 2026 \u00b7 Repeat and one-time buyers by month and by ASIN",
+      "kind": "page",
+      "section": "amc"
+    },
+    {
+      "key": "vc-time-to-conversion",
+      "file": "vc-time-to-conversion.html",
+      "label": "Time to Conversion (Vendor Central)",
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
