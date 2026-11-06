@@ -38,6 +38,7 @@ with the paths.
 
 - New account: `python3 tools/publish_monthly.py init --repo . --client xps-<client> --brand "<Brand>" --drive-folder <id>`
 - Extra page (AMC or any other): `python3 tools/publish_monthly.py page --repo . --client xps-<client> --brand "<Brand>" --key amc --label "AMC Analysis" --file amc.html`
+- Category / Listing Review: `python3 tools/add_linkbar.py --repo . --client xps-<client> category.html listing.html`, then publish each with `page --key category-review --label "Category Review"` and `page --key listing-review --label "Listing Review"`. Both land under Category & SEO Reviews.
   The page appears under "Other Pages" on Home and in every page's Pages switcher. To reserve a new path
   for every account, add it to `RESERVED_PAGES` in the script and re-run `init`.
 
