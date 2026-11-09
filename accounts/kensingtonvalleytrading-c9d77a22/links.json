@@ -3,8 +3,8 @@
   "client": "kensingtonvalleytrading",
   "slug": "kensingtonvalleytrading-c9d77a22",
   "marketplace": "US",
-  "updated": "2026-10-31T00:38:25+00:00",
-  "updated_date": "2026-10-30",
+  "updated": "2026-11-09T21:55:02+00:00",
+  "updated_date": "2026-11-09",
   "items": [
     {
       "key": "drive_folder",
@@ -65,6 +65,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "2026-11-09 \u00b7 Seller-level review across six candy subcategories: sales, buy box and reseller pressure, inventory, Subscribe & Save base",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "2026-11-09 \u00b7 10 ASINs: content, retail readiness, search visibility, AI scorecard",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -109,6 +125,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "2026-11-09 \u00b7 Seller-level review across six candy subcategories: sales, buy box and reseller pressure, inventory, Subscribe & Save base",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "2026-11-09 \u00b7 10 ASINs: content, retail readiness, search visibility, AI scorecard",
+      "kind": "page",
+      "section": "category"
     }
   ]
 }
