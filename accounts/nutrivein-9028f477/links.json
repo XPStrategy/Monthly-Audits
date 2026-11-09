@@ -3,8 +3,8 @@
   "client": "nutrivein",
   "slug": "nutrivein-9028f477",
   "marketplace": "US",
-  "updated": "2026-10-29T18:17:53+00:00",
-  "updated_date": "2026-10-29",
+  "updated": "2026-11-09T22:28:01+00:00",
+  "updated_date": "2026-11-09",
   "items": [
     {
       "key": "drive_folder",
@@ -65,6 +65,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "2026-11-09 \u00b7 Brand vs Vitamin C, Berberine, Detox/ACV, Resveratrol, Collagen; buy box, website, Subscribe & Save base",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "2026-11-09 \u00b7 10 ASINs: content, retail readiness, search visibility, AI scorecard",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -109,6 +125,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "2026-11-09 \u00b7 Brand vs Vitamin C, Berberine, Detox/ACV, Resveratrol, Collagen; buy box, website, Subscribe & Save base",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "2026-11-09 \u00b7 10 ASINs: content, retail readiness, search visibility, AI scorecard",
+      "kind": "page",
+      "section": "category"
     }
   ]
 }
