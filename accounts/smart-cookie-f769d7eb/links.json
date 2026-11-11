@@ -1,0 +1,108 @@
+{
+  "brand": "Smart Cookie (Gout and You)",
+  "client": "smart-cookie",
+  "slug": "smart-cookie-f769d7eb",
+  "marketplace": "US",
+  "updated": "2026-11-11T14:11:01+00:00",
+  "updated_date": "2026-11-11",
+  "items": [
+    {
+      "key": "drive_folder",
+      "label": "Drive folder",
+      "group": "client",
+      "url": "https://drive.google.com/drive/folders/1tucfdU4LpaIBvLegHw9l6ln0gF0NJff0"
+    },
+    {
+      "key": "seller_central",
+      "label": "Seller Central",
+      "group": "client",
+      "url": "https://sellercentral.amazon.com"
+    },
+    {
+      "key": "ads_console",
+      "label": "Ads console",
+      "group": "client",
+      "url": "https://advertising.amazon.com"
+    }
+  ],
+  "client_files": [],
+  "pages": [
+    {
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    }
+  ],
+  "names": {
+    "base": "Smart Cookie (Gout and You) - Monthly Account Review"
+  },
+  "all_pages": [
+    {
+      "key": "new-to-brand",
+      "file": "new-to-brand.html",
+      "label": "New-to-Brand",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "repeat-purchase",
+      "file": "repeat-purchase.html",
+      "label": "Repeat Purchase",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "path-to-conversion",
+      "file": "path-to-conversion.html",
+      "label": "Path to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    },
+    {
+      "key": "time-to-conversion",
+      "file": "time-to-conversion.html",
+      "label": "Time to Conversion",
+      "note": "Not published yet",
+      "kind": "page",
+      "status": "placeholder",
+      "section": "amc"
+    }
+  ]
+}

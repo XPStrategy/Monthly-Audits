@@ -1,5 +1,5 @@
 {
- "_source": "Account_Distribution.xlsx, All Accounts tab (2026-10-29). status: active | offboarding | inactive. Update this file when assignments change; the hub rebuilds on the next publish or with tools/build_master.py.",
+ "_source": "Account_Distribution.xlsx, All Accounts tab (2026-10-29); statuses and MAP notes updated 2026-11-11 from the #am-team-chat MAP coverage threads (Nov 10-11). status: active | offboarding | inactive. Update this file when assignments change; the hub rebuilds on the next publish or with tools/build_master.py.",
  "advanced-bionutritionals": {
   "am": "Rome",
   "ppc": [
@@ -11,28 +11,30 @@
   "am": "Ahmed",
   "ppc": [
    "Zohaib"
-  ]
+  ],
+  "note": "MAP: SC US/CA/UK + UK ads links sent to client (expire Nov 24)"
  },
  "bingo1525": {
   "am": "Rome",
   "ppc": [
    "Jeremie"
   ],
-  "note": "BingO1525 / Atrium Plaza"
+  "note": "BingO1525 / Atrium Plaza · MAP: US ads re-link pending (expires Nov 24)"
  },
  "blacksail-eyewear": {
   "am": "Ahmed",
   "ppc": [
    "Raahim"
-  ]
+  ],
+  "note": "MAP off (not needed per AM) · no internal audit"
  },
  "bohemiaskin": {
   "am": "Rome",
   "ppc": [
    "Raahim"
   ],
-  "status": "offboarding",
-  "note": "Last day Nov 5, 2026"
+  "status": "inactive",
+  "note": "Offboarded (last day Nov 5, 2026) · MAP off"
  },
  "boroux": {
   "am": "Ahmed",
@@ -91,7 +93,7 @@
   "ppc": [
    "Ahsan"
   ],
-  "note": "Vendor Central"
+  "note": "Vendor Central · MAP: ads re-link pending (expires Nov 24) · Reliable Home Products is a separate Amazon account under this client"
  },
  "nutrivein": {
   "am": "Ahmed",
@@ -124,7 +126,7 @@
    "Zohaib",
    "Raahim"
   ],
-  "note": "SC (Zohaib) · Walmart (Raahim)"
+  "note": "SC (Zohaib) · Walmart (Raahim) · MAP: ads re-link pending (expires Nov 24)"
  },
  "spring-mount-supply": {
   "am": "Maria",
@@ -171,14 +173,15 @@
   "ppc": [
    "Shahrukh"
   ],
-  "note": "SC & VC"
+  "note": "SC & VC (one MAP brand since Nov 11)"
  },
  "gryphon": {
   "am": "Maria",
   "ppc": [
    "Shubham"
   ],
-  "status": "inactive"
+  "status": "inactive",
+  "note": "Offboarded"
  },
  "starline-provisions": {
   "am": "Ahmed",
@@ -192,19 +195,35 @@
   "ppc": [
    "Zohaib"
   ],
-  "status": "inactive"
+  "status": "inactive",
+  "note": "Offboarded · MAP off"
  },
  "altun": {
   "am": "Maria",
   "ppc": [
    "Zohaib"
-  ]
+  ],
+  "note": "4 accounts: Zesty Snackz (ads in MAP) · GlanceLED, Enhanced Scents, Tizon Sazon pending MAP links"
  },
  "nature-blends": {
   "am": "Ahmed",
   "ppc": [
    "Ahsan"
   ],
-  "note": "UK"
+  "note": "UK · MAP off for now (UK is main market; no UK ads in MAP)"
+ },
+ "sidekick": {
+  "am": "Justin",
+  "ppc": [
+   "Jeremie"
+  ],
+  "note": "Sidekick (TrainedTo) · new Oct 2026 · not in MAP yet (slot reserved)"
+ },
+ "smart-cookie": {
+  "am": "Ahmed",
+  "ppc": [
+   "Ahsan"
+  ],
+  "note": "Gout and You · US, CA, UK · new Oct 2026 · MAP on since Nov 6"
  }
 }
