@@ -36,3 +36,19 @@ Results go to the client Drive folder under `AMC/<yyyy-mm>`.
 Known limitation: queries 3 and 4 count "repeat" against all orders since the run start, so early months have
 less history than later ones. `3b_` / `4b_` (draft, not yet run) use a fixed 3-month lookback for every month.
 Limit: 25 queries per rolling 24 hours across all accounts, 2 in flight. One account = 6 queries.
+
+## Coverage check before the pack (added Nov 13, 2026)
+
+Run query 1 (or the one-line coverage check below) first. AMC blanks the month on any row under ~100 shoppers,
+so small accounts produce empty monthly pages. Run the full pack only when most months of the window are visible.
+
+```sql
+SELECT DATE_TRUNC('month', conversion_event_dt) AS month_start, COUNT(DISTINCT user_id) AS customers,
+       SUM(total_purchases) AS purchases, SUM(total_product_sales) AS sales
+FROM amazon_attributed_events_by_conversion_time WHERE total_purchases > 0 AND user_id IS NOT NULL GROUP BY 1
+```
+
+Jan – Sep 2026 result: Steam Clip 0 of 9 months visible, SkySail 1, Ultimate Washer 3, Joe's Trends 1 (AMC history from mid-2026),
+Zesty Snackz 7, Smart Cookie 9, Sidekick 9, Southern Dental 9. Steam Clip, SkySail, Ultimate Washer and Joe's Trends stay without
+AMC pages until volume clears the floor; Inglesina and SavonGoods are smaller still and were not run.
+Limit in practice: 2 queries in flight across the whole MAP account, not per AMC instance.
