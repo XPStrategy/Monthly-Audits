@@ -1,5 +1,5 @@
 {
- "_source": "Account_Distribution.xlsx, All Accounts tab (2026-10-29); statuses and MAP notes updated 2026-11-11 from the #am-team-chat MAP coverage threads (Nov 10-11). status: active | offboarding | inactive. Update this file when assignments change; the hub rebuilds on the next publish or with tools/build_master.py.",
+ "_source": "Account_Distribution.xlsx, All Accounts tab (2026-10-29); statuses and MAP notes updated 2026-11-13 from the #am-team-chat MAP coverage threads (Nov 10-11). status: active | offboarding | inactive. Update this file when assignments change; the hub rebuilds on the next publish or with tools/build_master.py.",
  "advanced-bionutritionals": {
   "am": "Rome",
   "ppc": [
@@ -19,14 +19,14 @@
   "ppc": [
    "Jeremie"
   ],
-  "note": "BingO1525 / Atrium Plaza · MAP: US ads re-link pending (expires Nov 24)"
+  "note": "BingO1525 / Atrium Plaza · active in MerchantSpring · MAP: Seller Central on; US ads need the XP login added as a user in the Ads console"
  },
  "blacksail-eyewear": {
   "am": "Ahmed",
   "ppc": [
    "Raahim"
   ],
-  "note": "MAP off (not needed per AM) · no internal audit"
+  "note": "Still connected in MerchantSpring · MAP off (not needed per AM) · no internal audit"
  },
  "bohemiaskin": {
   "am": "Rome",
@@ -67,7 +67,8 @@
   "am": "Maria",
   "ppc": [
    "Ahsan"
-  ]
+  ],
+  "note": "Vendor Central (no Seller Central views)"
  },
  "joes-trend": {
   "am": "Justin",
@@ -93,7 +94,7 @@
   "ppc": [
    "Ahsan"
   ],
-  "note": "Vendor Central · MAP: ads re-link pending (expires Nov 24) · Reliable Home Products is a separate Amazon account under this client"
+  "note": "Vendor Central · MAP: ads need the XP login added as a user in the Ads console · Reliable Home Products is a separate Amazon account under this client (no ad spend since Apr 2026)"
  },
  "nutrivein": {
   "am": "Ahmed",
@@ -126,7 +127,7 @@
    "Zohaib",
    "Raahim"
   ],
-  "note": "SC (Zohaib) · Walmart (Raahim) · MAP: ads re-link pending (expires Nov 24)"
+  "note": "SC (Zohaib) · Walmart (Raahim) · MAP: Seller Central on; US ads need the XP login added as a user in the Ads console"
  },
  "spring-mount-supply": {
   "am": "Maria",
@@ -203,7 +204,7 @@
   "ppc": [
    "Zohaib"
   ],
-  "note": "4 accounts: Zesty Snackz (ads in MAP) · GlanceLED, Enhanced Scents, Tizon Sazon pending MAP links"
+  "note": "4 accounts: Zesty Snackz (in MAP, brand off) · GlanceLED, Enhanced Scents, Tizon Sazon use the client login, not in MAP"
  },
  "nature-blends": {
   "am": "Ahmed",
@@ -217,7 +218,7 @@
   "ppc": [
    "Jeremie"
   ],
-  "note": "Sidekick (TrainedTo) · new Oct 2026 · not in MAP yet (slot reserved)"
+  "note": "Sidekick (TrainedTo) · new Oct 2026 · in MAP as TrainedTo (brand off) · US/CA ads need the XP login added in the Ads console"
  },
  "smart-cookie": {
   "am": "Ahmed",
