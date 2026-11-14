@@ -162,6 +162,11 @@ def chg(a, b):
 
 
 # ------------------------------------------------------------------ tabs ----
+def withheld(f, lab, row):
+    """Months listed in meta.withheld_months (all rows under AMC's privacy floor) print as dashes, not zeros."""
+    return [row[0]] + ["—"] * (len(row) - 1) if lab in (f.get("meta") or {}).get("withheld_months", []) else row
+
+
 def tab_ntb(f):
     L, N = f["months"], f["ntb"]
     ntb_pct = [sdiv(a, b) for a, b in zip(N["ntb_purchases"], N["purchases"])]
@@ -174,10 +179,10 @@ def tab_ntb(f):
                             right_fmt="money"))
     rows = []
     for i, lab in enumerate(L):
-        rows.append([lab, money(N["spend"][i]), num(N["customers"][i]), num(N["ntb_customers"][i]),
+        rows.append(withheld(f, lab, [lab, money(N["spend"][i]), num(N["customers"][i]), num(N["ntb_customers"][i]),
                      pct(sdiv(N["ntb_customers"][i], N["customers"][i])), num(N["purchases"][i]), num(N["ntb_purchases"][i]),
                      pct(ntb_pct[i]), money(N["ntb_sales"][i]), money(cpa[i]), num(N["sp_ntb"][i]), num(N["sb_ntb"][i]),
-                     pct(sdiv(N["sp_ntb"][i], N["ntb_purchases"][i]))])
+                     pct(sdiv(N["sp_ntb"][i], N["ntb_purchases"][i]))]))
     tb = table([("Month", 0), ("Ad spend", 1), ("Customers", 1), ("NTB customers", 1), ("NTB customer %", 1), ("Orders", 1),
                 ("NTB orders", 1), ("NTB order %", 1), ("NTB sales", 1), ("Spend per NTB order", 1), ("SP NTB", 1),
                 ("SB NTB", 1), ("SP share of NTB", 1)], rows)
@@ -238,9 +243,9 @@ def tab_repeat(f):
                + chart(combo_chart(L, [("Repeat customers", Rp["repeat_customers"], C_REP)], [("Repeat share of sales", rep_sh, B.ACCENT, "")], left_fmt="int")))
     rows = []
     for i, lab in enumerate(L):
-        rows.append([lab, num(Rp["customers"][i]), money(Rp["sales"][i]), num(Rp["sns_customers"][i]), pct(sns_sh[i]),
+        rows.append(withheld(f, lab, [lab, num(Rp["customers"][i]), money(Rp["sales"][i]), num(Rp["sns_customers"][i]), pct(sns_sh[i]),
                      num(Rp["repeat_customers"][i]), pct(sdiv(Rp["repeat_sales"][i], Rp["sales"][i])),
-                     num(Rp["one_customers"][i]), pct(sdiv(Rp["one_sales"][i], Rp["sales"][i])), num(Rp["signups"][i])])
+                     num(Rp["one_customers"][i]), pct(sdiv(Rp["one_sales"][i], Rp["sales"][i])), num(Rp["signups"][i])]))
     tb = table([("Month", 0), ("Customers", 1), ("Sales", 1), ("SnS customers", 1), ("SnS % sales", 1), ("Repeat customers", 1),
                 ("Repeat % sales", 1), ("One-time customers", 1), ("One-time % sales", 1), ("SnS sign-ups", 1)], rows)
     A = f["asin"]; atot = sum(a["sales"] for a in A) or 1
@@ -289,7 +294,7 @@ def tab_path(f):
     mrows = []
     for i, lab in enumerate(L):
         tot = sum((P["paths"][nm]["buyers"][i] or 0) for nm in names)
-        mrows.append([lab, num(tot)] + [pct(sdiv(P["paths"][nm]["buyers"][i], tot)) for nm in names])
+        mrows.append(withheld(f, lab, [lab, num(tot)] + [pct(sdiv(P["paths"][nm]["buyers"][i], tot)) for nm in names]))
     tm = table([("Month", 0), ("Ad-touched buyers", 1)] + [(esc(nm), 1) for nm in names], mrows)
     first, last = L[0], L[-1]
     def sh(nm, i):
