@@ -3,7 +3,7 @@
   "client": "dzg-products",
   "slug": "dzg-products-3197871c",
   "marketplace": "US",
-  "updated": "2026-11-16T17:28:26+00:00",
+  "updated": "2026-11-16T17:50:08+00:00",
   "updated_date": "2026-11-16",
   "items": [
     {
@@ -73,6 +73,14 @@
       "note": "Nov 16, 2026 \u00b7 Max Cylinder AFM/DFM disabler: sales vs last year, AFM/DFM market and search demand, peers, buy box, pricing, stock, listing summary",
       "kind": "page",
       "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Nov 16, 2026 \u00b7 2 ASINs (Max Cylinder B0CQKD3FPH, TruePower B0G2CWLZDX): content, retail readiness, search visibility, AI scorecard",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -123,6 +131,14 @@
       "file": "category-review.html",
       "label": "Category Review",
       "note": "Nov 16, 2026 \u00b7 Max Cylinder AFM/DFM disabler: sales vs last year, AFM/DFM market and search demand, peers, buy box, pricing, stock, listing summary",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Nov 16, 2026 \u00b7 2 ASINs (Max Cylinder B0CQKD3FPH, TruePower B0G2CWLZDX): content, retail readiness, search visibility, AI scorecard",
       "kind": "page",
       "section": "category"
     }
