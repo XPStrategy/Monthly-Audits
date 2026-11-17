@@ -3,7 +3,7 @@
   "client": "trailheads-apparel",
   "slug": "trailheads-apparel-0ce99b2a",
   "marketplace": "US",
-  "updated": "2026-11-17T18:40:21+00:00",
+  "updated": "2026-11-17T19:13:37+00:00",
   "updated_date": "2026-11-17",
   "items": [
     {
@@ -72,6 +72,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -123,6 +139,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ]
 }
