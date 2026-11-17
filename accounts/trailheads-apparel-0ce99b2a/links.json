@@ -3,8 +3,8 @@
   "client": "trailheads-apparel",
   "slug": "trailheads-apparel-0ce99b2a",
   "marketplace": "US",
-  "updated": "2026-10-31T00:27:34+00:00",
-  "updated_date": "2026-10-30",
+  "updated": "2026-11-17T18:40:21+00:00",
+  "updated_date": "2026-11-17",
   "items": [
     {
       "key": "drive_folder",
@@ -27,6 +27,13 @@
   ],
   "client_files": [],
   "pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "2026-10",
       "file": "2026-10.html",
@@ -71,6 +78,13 @@
     "base": "TrailHeads Apparel - Monthly Account Review"
   },
   "all_pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "2026-10",
       "file": "2026-10.html",
