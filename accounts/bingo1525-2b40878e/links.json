@@ -3,8 +3,8 @@
   "client": "bingo1525",
   "slug": "bingo1525-2b40878e",
   "marketplace": "US",
-  "updated": "2026-10-29T12:26:51+00:00",
-  "updated_date": "2026-10-29",
+  "updated": "2026-11-17T12:47:55+00:00",
+  "updated_date": "2026-11-17",
   "items": [
     {
       "key": "drive_folder",
@@ -62,6 +62,22 @@
       "kind": "page",
       "status": "placeholder",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -103,6 +119,22 @@
       "kind": "page",
       "status": "placeholder",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ]
 }
