@@ -3,8 +3,8 @@
   "client": "southerndental",
   "slug": "southerndental-ba83d4d8",
   "marketplace": "US",
-  "updated": "2026-11-13T21:46:22+00:00",
-  "updated_date": "2026-11-13",
+  "updated": "2026-11-17T12:22:27+00:00",
+  "updated_date": "2026-11-17",
   "items": [
     {
       "key": "drive_folder",
@@ -28,6 +28,13 @@
   "client_files": [],
   "pages": [
     {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
+    {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
       "label": "New-to-Brand",
@@ -58,6 +65,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ],
   "names": {
@@ -65,6 +88,13 @@
   },
   "all_pages": [
     {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
+    {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
       "label": "New-to-Brand",
@@ -95,6 +125,22 @@
       "note": "Jan \u2013 Sep 2026 \u00b7 Time from ad click to purchase by ad type",
       "kind": "page",
       "section": "amc"
+    },
+    {
+      "key": "category-review",
+      "file": "category-review.html",
+      "label": "Category Review",
+      "note": "Category Review",
+      "kind": "page",
+      "section": "category"
+    },
+    {
+      "key": "listing-review",
+      "file": "listing-review.html",
+      "label": "Listing Review",
+      "note": "Listing Review",
+      "kind": "page",
+      "section": "category"
     }
   ]
 }
