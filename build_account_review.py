@@ -629,6 +629,13 @@ def build(findings, out, logo):
 <div style="margin-top:10px;opacity:0.6;">{B.BRAND_NAME} &middot; {esc(m['display_brand'])} &middot; {m['report_date']}</div></footer>
 {H.scripts_block(links)}
 </body></html>"""
+    bj = os.path.join(os.path.dirname(os.path.abspath(findings)), "bulk.json")
+    if os.path.exists(bj):          # bulk-upload files (bulk_actions.py): buttons in tab titles + collapsed details
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import bulk_render as BR
+        bulk = json.load(open(bj))
+        BR.LINK_BASE = f"bulk/{bulk['month']}"
+        doc = BR.inject_html(doc, BR.render_blocks(bulk, os.path.dirname(bj), bulk.get("lag")))
     open(out, "w").write(doc)
     return out
 

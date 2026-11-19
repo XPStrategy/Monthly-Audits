@@ -132,7 +132,7 @@ def init_config(path, run_date, **kw):
            "l30": [w["L0"], w["L1"]], "p30": [w["P0"], w["P1"]], "ly": [w["LY0"], w["LY1"]], "lag": [w["W0"], w["W1"]],
            "report_date": run_date, "last_complete_month": w["LCM"], "q4_year": w["QY"],
            "display_brand": kw.get("display_brand"), "ads_account_id": kw.get("ads_account_id"),
-           "sp_account_id": kw.get("sp_account_id"), "brand_terms": kw.get("brand_terms", []),
+           "sp_account_id": kw.get("sp_account_id"), "brand_terms": kw.get("brand_terms", []), "product_terms": kw.get("product_terms", []),
            "competitor_terms": kw.get("competitor_terms", []), "notes": kw.get("notes", [])}
     _json.dump(cfg, open(path, "w"), indent=1)
     return cfg

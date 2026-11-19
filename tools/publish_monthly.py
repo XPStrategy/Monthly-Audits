@@ -315,6 +315,14 @@ def publish(repo, client, brand, month, review, marketplace="US", drive_folder=N
         page = re.sub(r"(<body[^>]*>)", r"\1" + bar.replace("\\", "\\\\"), page, count=1)
     with open(os.path.join(out, f"{month}.html"), "w", encoding="utf-8") as f:
         f.write(page)
+    # bulk-upload files built in the run (account_dir/bulk/*.xlsx) -> accounts/<slug>/bulk/<month>/
+    src_bulk = os.path.join(os.path.dirname(os.path.abspath(review)), "bulk")
+    if os.path.isdir(src_bulk):
+        dst = os.path.join(out, "bulk", month)
+        os.makedirs(dst, exist_ok=True)
+        for fn in os.listdir(src_bulk):
+            if fn.endswith(".xlsx"):
+                shutil.copyfile(os.path.join(src_bulk, fn), os.path.join(dst, fn))
     slug, meta = write_hub(repo, client, brand, marketplace, drive_folder, slack_channel_id,
                            add_pages=[{"key": month, "file": f"{month}.html", "label": month_label(month),
                                        "note": note or "Monthly Account Review", "kind": "review"}])

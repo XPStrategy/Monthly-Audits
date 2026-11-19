@@ -3,15 +3,17 @@
 
 Usage: python3 bulk_actions.py <account_dir> --run-date YYYY-MM-DD [--brand-terms a,b] [--product-terms a,b]
 
-Reads the bk_*.json MAP pulls in <account_dir> (see BULK_SQL in this file) plus st_top.json and
-targets.json from the standard review pulls, and writes:
+Reads the bk_*.json MAP pulls in <account_dir> (see BULK_SQL; print one with `bulk_actions.py sql <name> <run_date>`),
+st_top.json, targets.json and budget_recs.json from the standard review pulls, config.json (run date, slug, brand_terms,
+product_terms) and the live account state (live_*.json from list_resources, else live_bulk.xlsx = an Amazon bulk
+download), and writes:
   <account_dir>/bulk/<slug>_<kind>_<yyyy-mm>.xlsx   one Amazon bulksheet per action set
   <account_dir>/bulk.json                         rows + rules for the review page
 Every file is a 'Sponsored Products Campaigns' sheet in Amazon's bulksheet layout: IDs written as text,
 informational metric columns filled for the reviewer (Amazon ignores them on upload).
 Rules are fixed and derived from the account's own data; nothing is typed by hand.
 """
-import argparse, collections, datetime as dt, json, math, os, re, statistics
+import argparse, collections, datetime as dt, json, math, os, re, statistics, sys
 
 HEAD = ["Product", "Entity", "Operation", "Campaign ID", "Ad Group ID", "Portfolio ID", "Ad ID", "Keyword ID",
         "Product Targeting ID", "Campaign Name", "Ad Group Name", "Campaign Name (Informational only)",
@@ -36,13 +38,63 @@ SELECT t, ROUND(SUM(cost),2) AS sp, ROUND(SUM(sl),2) AS sl, SUM(o) AS o, SUM(k) 
  "bk_neg": """WITH s AS (SELECT lower(trim(searchTerm)) AS t, keywordType AS kt, CAST(adGroupId AS VARCHAR) AS g, CAST(campaignId AS VARCHAR) AS c, campaignName AS cn, adGroupName AS gn, cost, purchases14d AS o, clicks AS k FROM sponsored_products_search_terms WHERE date BETWEEN '{W0}' AND '{W1}'),
 tt AS (SELECT t, SUM(o) AS o, SUM(cost) AS sp FROM s GROUP BY t)
 SELECT s.c, s.g, any_value(s.cn) AS cn, any_value(s.gn) AS gn, s.kt, s.t, ROUND(SUM(s.cost),2) AS sp, SUM(s.k) AS k, ROUND(any_value(tt.sp),2) AS t_sp, repeat('x', 400) AS pad FROM s JOIN tt ON s.t = tt.t WHERE tt.o = 0 AND tt.sp >= 25 GROUP BY s.c, s.g, s.kt, s.t HAVING SUM(s.k) > 0 ORDER BY t_sp DESC, sp DESC""",
- "bk_pads": """SELECT CAST(campaignId AS VARCHAR) AS c, CAST(adGroupId AS VARCHAR) AS g, advertisedAsin AS a, arg_max(advertisedSku, cost) AS sku, ROUND(SUM(cost),2) AS sp, ROUND(SUM(sales14d),2) AS sl, SUM(purchases14d) AS o, MAX(date) AS ld FROM sponsored_products_product_ads WHERE date BETWEEN '{S0}' AND '{L1}' GROUP BY 1,2,3""",
- "bk_camps": """SELECT CAST(campaignId AS VARCHAR) AS c, any_value(campaignName) AS cn, arg_max(campaignBudgetAmount, date) AS bud, arg_max(campaignStatus, date) AS st, MAX(date) AS ld, ROUND(SUM(CASE WHEN date >= '{L0}' THEN cost ELSE 0 END),2) AS sp30, ROUND(SUM(CASE WHEN date >= '{L0}' THEN sales14d ELSE 0 END),2) AS sl30, SUM(CASE WHEN date >= '{L0}' THEN purchases14d ELSE 0 END) AS o30, ROUND(SUM(cost),2) AS sp60, ROUND(SUM(sales14d),2) AS sl60, repeat('x', 500) AS pad FROM sponsored_products_campaigns WHERE date BETWEEN '{S0}' AND '{L1}' GROUP BY 1 HAVING SUM(cost) > 0 ORDER BY sp30 DESC""",
- "bk_sc": """SELECT childAsin AS a, ROUND(SUM(orderedProductSales_amount),2) AS s, SUM(unitsOrdered) AS u, SUM(totalOrderItems) AS o, SUM(sessions) AS ses, repeat('x', 5200) AS pad FROM sp_sales_traffic WHERE date BETWEEN '{S0}' AND '{L1}' GROUP BY 1 HAVING SUM(unitsOrdered) > 0 ORDER BY s DESC""",
+ "bk_pads": """SELECT CAST(campaignId AS VARCHAR) AS c, CAST(adGroupId AS VARCHAR) AS g, advertisedAsin AS a, arg_max(advertisedSku, cost) AS sku, ROUND(SUM(cost),2) AS sp, ROUND(SUM(sales14d),2) AS sl, SUM(purchases14d) AS o, MAX(date) AS ld FROM sponsored_products_product_ads WHERE date BETWEEN '{P0}' AND '{L1}' GROUP BY 1,2,3""",
+ "bk_camps": """SELECT CAST(campaignId AS VARCHAR) AS c, any_value(campaignName) AS cn, arg_max(campaignBudgetAmount, date) AS bud, arg_max(campaignStatus, date) AS st, MAX(date) AS ld, ROUND(SUM(CASE WHEN date >= '{L0}' THEN cost ELSE 0 END),2) AS sp30, ROUND(SUM(CASE WHEN date >= '{L0}' THEN sales14d ELSE 0 END),2) AS sl30, SUM(CASE WHEN date >= '{L0}' THEN purchases14d ELSE 0 END) AS o30, ROUND(SUM(cost),2) AS sp60, ROUND(SUM(sales14d),2) AS sl60, repeat('x', 500) AS pad FROM sponsored_products_campaigns WHERE date BETWEEN '{P0}' AND '{L1}' GROUP BY 1 HAVING SUM(cost) > 0 ORDER BY sp30 DESC""",
+ "bk_sc": """SELECT childAsin AS a, ROUND(SUM(orderedProductSales_amount),2) AS s, SUM(unitsOrdered) AS u, SUM(totalOrderItems) AS o, SUM(sessions) AS ses, repeat('x', 5200) AS pad FROM sp_sales_traffic WHERE date BETWEEN '{P0}' AND '{L1}' GROUP BY 1 HAVING SUM(unitsOrdered) > 0 ORDER BY s DESC""",
  "bk_sqp": """WITH mx AS (SELECT MAX(endDate) AS e FROM sp_search_query_performance), w AS (SELECT lower(trim(searchQuery)) AS q, asin, SUM(asinPurchaseCount) AS p, SUM(asinClickCount) AS ck FROM sp_search_query_performance WHERE endDate > (SELECT e FROM mx) - INTERVAL 56 DAY GROUP BY 1,2)
 SELECT q, SUM(p) AS bp, SUM(ck) AS bc, arg_max(asin, p) AS top_asin, MAX(p) AS top_p, (SELECT MAX(e) FROM mx) AS e, repeat('x', 1100) AS pad FROM w GROUP BY q HAVING SUM(p) >= 3 ORDER BY bp DESC""",
  "bk_skus": """SELECT asin, arg_max(sku, TRY_CAST(available AS INTEGER)) AS sku, any_value("product-name") AS name, arg_max(TRY_CAST(available AS INTEGER), "_loaded_at") AS avail FROM sp_fba_inventory_planning WHERE asin IN ({ASINS}) GROUP BY 1""",
 }
+
+
+def low(x):
+    return (x or "").strip().lower()
+
+
+def _g(d, *keys):
+    for k in keys:
+        if isinstance(d, dict) and d.get(k) is not None:
+            return d[k]
+    return None
+
+
+def live_from_api(d):
+    """Live state from list_resources pulls saved in the account folder (plain JSON lists):
+    live_campaigns.json (sp_campaigns), live_ad_groups.json (sp_ad_groups), live_keywords.json (sp_keywords),
+    live_negatives.json (sp_negative_keywords + sp_campaign_negative_keywords), live_neg_targets.json
+    (sp_negative_targets), live_targets.json (sp_targets), live_product_ads.json (sp_product_ads)."""
+    f = lambda n: load(d, n, None)
+    if f("live_keywords.json") is None:
+        return None
+    L = {"source": "Amazon Ads API (live campaign lists)", "ad_groups": set(), "campaigns": {}, "neg_ag": set(),
+         "neg_c": set(), "neg_pt": set(), "exact": set(), "pt": set(), "ad_asins": set()}
+    on = lambda r: low(_g(r, "state")) in ("enabled", "")
+    for r in f("live_campaigns.json") or []:
+        b = _g(r, "budget"); b = b.get("budget") if isinstance(b, dict) else b
+        L["campaigns"][str(_g(r, "campaignId"))] = {"Daily Budget": b, "State": low(_g(r, "state"))}
+    camp_on = {k for k, v in L["campaigns"].items() if v["State"] in ("enabled", "")}
+    L["ad_groups"] = {str(_g(r, "adGroupId")) for r in f("live_ad_groups.json") or []
+                      if on(r) and (not camp_on or str(_g(r, "campaignId")) in camp_on)}
+    for r in f("live_keywords.json") or []:
+        if on(r) and low(_g(r, "matchType")) == "exact":
+            L["exact"].add(low(_g(r, "keywordText")))
+    for r in f("live_negatives.json") or []:
+        mt = low(_g(r, "matchType")).replace("_", " ")
+        if _g(r, "adGroupId"):
+            L["neg_ag"].add((str(_g(r, "adGroupId")), low(_g(r, "keywordText")), mt))
+        else:
+            L["neg_c"].add((str(_g(r, "campaignId")), low(_g(r, "keywordText")), mt))
+    expr = lambda r: [e.get("value", "").lower() for e in (_g(r, "expression") or []) if isinstance(e, dict) and "ASIN" in str(e.get("type", "")).upper()]
+    for r in f("live_neg_targets.json") or []:
+        for v in expr(r):
+            L["neg_pt"].add((str(_g(r, "adGroupId")), f'asin="{v}"'))
+    for r in f("live_targets.json") or []:
+        if on(r):
+            for v in expr(r):
+                L["pt"].add(f'asin="{v}"')
+    if f("live_product_ads.json") is not None:
+        L["ad_asins"] = {_g(r, "asin") for r in f("live_product_ads.json") if on(r) and str(_g(r, "adGroupId")) in L["ad_groups"]}
+    return L
 
 
 def load(d, name, default=None):
@@ -61,6 +113,9 @@ def load(d, name, default=None):
 def load_live(d):
     """Live account state: Amazon bulk download (live_bulk.xlsx, enabled entities) or the live_*.json API pulls.
     Returns None when neither is in the folder."""
+    api = live_from_api(d)
+    if api:
+        return api
     p = os.path.join(d, "live_bulk.xlsx")
     if not os.path.exists(p):
         return None
@@ -68,7 +123,6 @@ def load_live(d):
     warnings.filterwarnings("ignore")
     ws = openpyxl.load_workbook(p, read_only=True)["Sponsored Products Campaigns"]
     it = ws.iter_rows(values_only=True); H = next(it)
-    low = lambda x: (x or "").strip().lower()
     L = {"source": "Amazon Ads bulk download", "ad_groups": set(), "campaigns": {}, "neg_ag": set(), "neg_c": set(),
          "neg_pt": set(), "exact": set(), "pt": set(), "ad_asins": set()}
     for row in it:
@@ -118,12 +172,24 @@ def write_bulk(path, rows):
 
 
 def main():
+    if len(sys.argv) > 1 and sys.argv[1] == "sql":     # python3 bulk_actions.py sql <name> <run_date> [ASIN,ASIN]
+        sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+        import sql_templates as S
+        w = S.windows(sys.argv[3]); asins = ",".join(f"'{x.strip()}'" for x in (sys.argv[4] if len(sys.argv) > 4 else "").split(",") if x.strip())
+        print(BULK_SQL[sys.argv[2]].format(ASINS=asins or "''", **w)); return
     ap = argparse.ArgumentParser()
-    ap.add_argument("acct"); ap.add_argument("--run-date", required=True)
+    ap.add_argument("acct"); ap.add_argument("--run-date", default=None)
     ap.add_argument("--slug", default=None)
     ap.add_argument("--brand-terms", default=""); ap.add_argument("--product-terms", default="")
     ap.add_argument("--min-weeks-cover", type=float, default=4.0)
     a = ap.parse_args(); D = a.acct
+    cfg = load(D, "config.json", {}) or {}
+    a.run_date = a.run_date or cfg.get("report_date") or cfg.get("run_date")
+    a.slug = a.slug or cfg.get("slug")
+    if not a.brand_terms and cfg.get("brand_terms"):
+        a.brand_terms = ",".join(cfg["brand_terms"])
+    if not a.product_terms and cfg.get("product_terms"):
+        a.product_terms = ",".join(cfg["product_terms"])
     run = dt.date.fromisoformat(a.run_date); mon = run.strftime("%Y-%m"); start = run.strftime("%Y%m%d")
     slug = a.slug or os.path.basename(os.path.normpath(D))
     brand = [t.strip().lower() for t in a.brand_terms.split(",") if t.strip()]
@@ -131,10 +197,10 @@ def main():
 
     camps = load(D, "bk_camps.json", []); pads = load(D, "bk_pads.json", []); hv = load(D, "bk_harvest.json", [])
     neg = load(D, "bk_neg.json", []); sc = load(D, "bk_sc.json", []); sqp = load(D, "bk_sqp.json", [])
-    st = load(D, "st_top.json", []); tg = load(D, "targets.json", []); recs = load(D, "budget_recs_raw.json", {}) or {}
+    st = load(D, "st_top.json", []); tg = load(D, "targets.json", []); recs = load(D, "budget_recs.json", None) or load(D, "budget_recs_raw.json", {}) or {}
     skus_extra = load(D, "bk_skus.json", None) or load(D, "sku_extra.json", {}) or {}
     if isinstance(skus_extra, list):
-        skus_extra = {r["asin"]: r for r in skus_extra}
+        skus_extra = {r["asin"]: {**r, "name": (r.get("name") or "").split(" | ")[0][:60]} for r in skus_extra}
     own_asins = {r["a"].lower() for r in pads} | {r["a"].lower() for r in sc}
     live = load_live(D)
 
@@ -196,7 +262,15 @@ def main():
             return None, "no product ad found"
         return None, "source ad group holds several ASINs"
 
-    out = {"live_state": (live or {}).get("source", "report data only (no live campaign list)"), "run_date": a.run_date, "reference_acos": T, "reference_acos_source": "account SP ACoS, last 60 days",
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    try:
+        import sql_templates as S
+        w = S.windows(a.run_date)
+        f_ = lambda x: dt.date.fromisoformat(x).strftime("%b %-d")
+        lag = f"{f_(w['W0'])} – {f_(w['W1'])}, {w['W1'][:4]}"
+    except Exception:
+        lag = None
+    out = {"month": mon, "lag": lag, "live_state": (live or {}).get("source", "report data only (no live campaign list)"), "run_date": a.run_date, "reference_acos": T, "reference_acos_source": "account SP ACoS, last 60 days",
            "cpa": CPA, "prefix": prefix, "files": {}, "notes": []}
     os.makedirs(os.path.join(D, "bulk"), exist_ok=True)
     fname = lambda k: f"{slug}_{k}_{mon}.xlsx"

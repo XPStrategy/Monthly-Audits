@@ -164,7 +164,10 @@ def render_blocks(bulk, acct, lag=None):
 
 
 def inject(page, blocks):
-    s = open(page).read()
+    return inject_html(open(page).read(), blocks)
+
+
+def inject_html(s, blocks):
     s = re.sub(r"/\*bulk-css\*/.*?/\*/bulk-css\*/", "", s, flags=re.S)
     s = s.replace("</style>", "/*bulk-css*/" + CSS + "/*/bulk-css*/</style>", 1)
     s = re.sub(r'<!--bulk:[a-z0-9]+-->.*?<!--/bulk-->', "", s, flags=re.S)        # re-runnable
