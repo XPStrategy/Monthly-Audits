@@ -159,7 +159,7 @@ RESERVED_PAGES = {
 # (default "other"). Add e.g. ("category", "Category Reviews") here and map its keys below.
 SECTIONS = [("amc", "AMC Reviews"), ("inventory", "Inventory Forecast"), ("category", "Category & SEO Reviews"), ("other", "Other Reports")]
 SECTION_OF = {"new-to-brand": "amc", "repeat-purchase": "amc", "path-to-conversion": "amc", "time-to-conversion": "amc",
-              "category-review": "category", "listing-review": "category"}
+              "category-review": "category", "category-review-atv": "category", "listing-review": "category"}
 # second-profile AMC pages (e.g. vc-new-to-brand) belong to the same section
 for _k in list(SECTION_OF):
     SECTION_OF["vc-" + _k] = SECTION_OF[_k]
