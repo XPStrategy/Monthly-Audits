@@ -24,6 +24,15 @@ a.dl-btn svg { width:15px; height:15px; }
 .bulk-rule { font-size:12px; color:#666666; margin:0 0 12px; }
 .bulk details { margin-top:10px; }
 .bulk-none { font-size:13px; color:#666666; }
+h2.has-dl { display:flex; justify-content:space-between; align-items:center; gap:10px 16px; flex-wrap:wrap; }
+h2.has-dl .h2-dl { display:flex; gap:8px; flex-wrap:wrap; }
+h2 a.dl-btn { font-size:13px; letter-spacing:0; line-height:1.2; }
+details.bulk > summary { cursor:pointer; list-style:none; display:flex; flex-direction:column; gap:3px; }
+details.bulk > summary::-webkit-details-marker { display:none; }
+details.bulk > summary .bulk-title { font-size:15px; font-weight:600; color:#111318; }
+details.bulk > summary .bulk-title::after { content:"  Show rows ▾"; font-size:12px; font-weight:500; color:#666666; }
+details.bulk[open] > summary .bulk-title::after { content:"  Hide ▴"; }
+details.bulk[open] > summary { margin-bottom:6px; }
 """
 ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>'
 
@@ -65,8 +74,9 @@ def dl(acct, fname, label):
 
 def card(tag, title, btn, meta, rule, body, extra="", src=""):
     m = "".join(f"<span>{x}</span>" for x in meta)
-    return f"""<div class="card bulk"><div class="bulk-head"><div><div class="bulk-tag">{tag}</div><h3>{title}</h3></div>{btn}</div>
-  <div class="bulk-meta">{m}</div><p class="bulk-rule">{esc(rule)}</p>{body}{extra}<p class="src">Source: {esc(src)}</p></div>"""
+    btn_html = f'<!--btn-->{btn}<!--/btn-->' if btn else ""
+    return f"""{btn_html}<details class="card bulk"><summary><span class="bulk-tag">{tag}</span><span class="bulk-title">{title}</span></summary>
+  <div class="bulk-meta">{m}</div><p class="bulk-rule">{esc(rule)}</p>{body}{extra}<p class="src">Source: {esc(src)}</p></details>"""
 
 
 def render_blocks(bulk, acct, lag=None):
@@ -86,7 +96,7 @@ def render_blocks(bulk, acct, lag=None):
     if b["excluded"]:
         er = [[esc(x["campaign"]), money(x["budget"]), money(x["suggested"]), pct(x["tib"]), pct(x["acos_l30"]), esc(x["reason"])] for x in b["excluded"]]
         exc = f'<details><summary>{len(er)} constrained campaigns not in the file</summary>{table([("Campaign", 0), ("Daily Budget", 1), ("Amazon Suggested", 1), ("Time in Budget", 1), ("ACoS 30d", 1), ("Reason", 0)], er)}</details>'
-    out["budgets"] = card(tag, "Budget updates", dl(acct, f.get("budgets"), "Download budget file"),
+    out["budgets"] = card(tag, "Budget updates", dl(acct, f.get("budgets"), "Budget file"),
                           [f"<b>{len(b['included'])}</b> campaign{'' if len(b['included']) == 1 else 's'} updated", f"Reference ACoS <b>{pct(T, 1)}</b>", f"Budget check {esc(b.get('window'))}"],
                           b["rule"], body, exc + foot, "Amazon Ads budget recommendations and campaign reports")
 
@@ -99,7 +109,7 @@ def render_blocks(bulk, acct, lag=None):
     if n["excluded"]:
         er = [[esc(x["term"]), esc(x["class"]), money(x["spend"]), num(x["clicks"]), esc(x["reason"])] for x in n["excluded"]]
         exc = f'<details><summary>{len(er)} zero-order terms over the threshold left out of the file</summary>{table([("Search Term", 0), ("Type", 0), ("Spend", 1), ("Clicks", 1), ("Reason", 0)], er)}</details>'
-    out["wasted"] = card(tag, "Negative keywords from wasted spend", dl(acct, f.get("negatives"), "Download negatives file"),
+    out["wasted"] = card(tag, "Negative keywords from wasted spend", dl(acct, f.get("negatives"), "Negatives file"),
                          [f"<b>{len(n['included'])}</b> search terms", f"<b>{n['rows']}</b> negative rows", f"<b>{money(n['spend'])}</b> zero-order spend",
                           f"Window {esc(lag) if lag else 'conversion-complete'}"], n["rule"], body, exc + foot, "Amazon Ads search term reports, conversion-complete window")
 
@@ -111,14 +121,14 @@ def render_blocks(bulk, acct, lag=None):
     if h["excluded"]:
         er = [[esc(x["term"]), num(x["orders"]), money(x["sales"]), pct(x["acos"]), esc(x["reason"])] for x in h["excluded"]]
         exc = f'<details><summary>{len(er)} converting terms left out of the file</summary>{table([("Search Term", 0), ("Orders", 1), ("Sales", 1), ("ACoS", 1), ("Reason", 0)], er)}</details>'
-    parts.append(card(tag, "Harvest: converting search terms to Exact", dl(acct, f.get("harvest_search_terms"), "Download harvest file"),
+    parts.append(card(tag, "Harvest: converting search terms to Exact", dl(acct, f.get("harvest_search_terms"), "Harvest: search terms"),
                       [f"<b>{len(h['included'])}</b> keywords", f"<b>{h.get('ad_groups', 0)}</b> ad groups",
                        f"New campaign <b>{esc(h.get('campaign'))}</b>", f"Daily budget <b>{money(h.get('daily_budget'))}</b>"],
                       h["rule"], table([("Search Term", 0), ("Type", 0), ("ASIN", 0), ("Orders", 1), ("Sales", 1), ("ACoS", 1), ("Bid", 1)], rows), exc + foot, "Amazon Ads search term and advertised product reports; Brand Analytics Search Query Performance"))
     q = bulk["sqp_harvest"]
     rows = [[esc(x["term"]), esc(x["class"]), esc(x["asin"]), num(x["brand_purchases"]), num(x["brand_clicks"]), money(x["paid_spend"]),
              money(x["bid"], 2), esc(x["bid_source"])] for x in q["included"]]
-    parts.append(card(tag, "Harvest: Search Query Performance queries to Exact", dl(acct, f.get("harvest_sqp"), "Download SQP harvest file"),
+    parts.append(card(tag, "Harvest: Search Query Performance queries to Exact", dl(acct, f.get("harvest_sqp"), "Harvest: SQP"),
                       [f"<b>{len(q['included'])}</b> keywords", f"<b>{q.get('ad_groups', 0)}</b> ad groups", f"New campaign <b>{esc(q.get('campaign'))}</b>",
                        f"Daily budget <b>{money(q.get('daily_budget'))}</b>", f"Brand Analytics 8 weeks to {esc(q.get('window_end'))}"],
                       q["rule"], table([("Search Query", 0), ("Type", 0), ("ASIN", 0), ("Brand Purchases", 1), ("Brand Clicks", 1), ("Paid Spend", 1), ("Bid", 1), ("Bid Basis", 0)], rows), foot, "Brand Analytics Search Query Performance; Amazon Ads search term reports"))
@@ -132,7 +142,7 @@ def render_blocks(bulk, acct, lag=None):
             for x in sorted(p["rows"], key=lambda x: (x["ratio"], -x["sales_60"]))]
     body = table([("Product", 0), ("Status", 0), ("Total Sales 60d", 1), ("Units 60d", 1), ("Ad Spend 60d", 1), ("Spend Share ÷ Sales Share", 1),
                   ("FBA Avail.", 1), ("Weeks of Cover", 1), ("Bulk File", 0)], rows)
-    out["products"] = card(tag, "Products selling with little or no ad spend", dl(acct, f.get("product_push"), "Download product push file"),
+    out["products"] = card(tag, "Products selling with little or no ad spend", dl(acct, f.get("product_push"), "Product push file"),
                            [f"<b>{sum(1 for x in p['push'] if x.get('file'))}</b> ASINs in file", f"New campaign <b>{esc(p.get('campaign'))}</b>",
                             f"Daily budget <b>{money(p.get('daily_budget'))}</b>", f"Default bid <b>{money(p['auto_bid'], 2)}</b>"],
                            p["rule"] + " Under-invested = spend share below 0.7x sales share (listed, not in the file).", body, foot, "Seller Central Business Reports and FBA inventory planning report; Amazon Ads advertised product reports")
@@ -152,15 +162,22 @@ def render_blocks(bulk, acct, lag=None):
 
 def inject(page, blocks):
     s = open(page).read()
-    if "a.dl-btn" not in s:
-        s = s.replace("</style>", CSS + "</style>", 1)
-    s = re.sub(r'<!--bulk:[a-z]+-->.*?<!--/bulk-->', "", s, flags=re.S)        # re-runnable
+    s = re.sub(r"/\*bulk-css\*/.*?/\*/bulk-css\*/", "", s, flags=re.S)
+    s = s.replace("</style>", "/*bulk-css*/" + CSS + "/*/bulk-css*/</style>", 1)
+    s = re.sub(r'<!--bulk:[a-z0-9]+-->.*?<!--/bulk-->', "", s, flags=re.S)        # re-runnable
+    s = s.replace('<h2 class="has-dl">', "<h2>")
     for sec, h in blocks.items():
         if sec == "overview":
             m = re.search(r'<h3>Alerts This Month</h3>.*?</ul>.*?</div>', s, re.S)
             if m:
                 s = s[:m.end()] + f"\n  <!--bulk:{sec}-->{h}<!--/bulk-->" + s[m.end():]
                 continue
+        btns = re.findall(r"<!--btn-->(.*?)<!--/btn-->", h, re.S)
+        h = re.sub(r"<!--btn-->.*?<!--/btn-->", "", h, flags=re.S)
+        if btns:
+            s = re.sub(rf'(<section id="{sec}">\s*)<h2>(.*?)</h2>',
+                       lambda mm: f'{mm.group(1)}<h2 class="has-dl">{mm.group(2)}<!--bulk:h2--><span class="h2-dl">{"".join(btns)}</span><!--/bulk--></h2>',
+                       s, count=1, flags=re.S)
         m = re.search(rf'<section id="{sec}">.*?(</section>)', s, re.S)
         if not m:
             raise SystemExit(f"section {sec} not found")
