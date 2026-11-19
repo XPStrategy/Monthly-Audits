@@ -192,6 +192,11 @@ tr.det > td { background: #fafaf7; padding: 14px 16px 18px; }
 .seg button + button { border-left: 0; }
 .seg button.on { background: %(dark)s; color:#fff; border-color: %(dark)s; }
 .det-h a { font-size: 12.5px; color: %(dark)s; }
+.det-r { display:flex; gap:14px; align-items:center; }
+.dl { font: inherit; font-size: 12.5px; padding: 6px 12px; border: 1px solid %(border)s; border-radius: 6px; background:#fff; color: %(dark)s; cursor:pointer; }
+.dl:hover { border-color: %(accent)s; }
+.h2row { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; border-bottom: 2px solid %(border)s; margin-bottom: 18px; padding-bottom: 10px; }
+.h2row h2 { border: 0; margin: 0; padding: 0; }
 .mini { max-height: 460px; overflow: auto; border: 1px solid %(border)s; border-radius: 6px; background:#fff; }
 .mini th { background: #2b2f38; }
 .mini td, .mini th { padding: 7px 12px; font-size: 13px; }
@@ -200,7 +205,7 @@ tr.det > td { background: #fafaf7; padding: 14px 16px 18px; }
 .flag { color: %(warn)s; font-weight: 600; margin-left: 2px; }
 .notes { font-size: 12px; color: %(muted)s; margin-top: 10px; line-height: 1.6; }
 @media (max-width: 720px) { th, td { padding: 7px 8px; font-size: 12.5px; } }
-""" % dict(border=B.BORDER, ink=B.INK, dark=B.DARK, muted=B.MUTED, good=B.GOOD, bad=B.BAD, warn=B.WARN)
+""" % dict(border=B.BORDER, ink=B.INK, dark=B.DARK, muted=B.MUTED, accent=B.ACCENT, good=B.GOOD, bad=B.BAD, warn=B.WARN)
 
 JS = r"""
 (function(){
@@ -242,14 +247,52 @@ function mini(a, g){
   });
   return '<div class="mini"><table><thead><tr><th>Data Range</th>' + MET.map(function(m){ return "<th>" + m[1] + "</th>"; }).join("") + "</tr></thead><tbody>" + h + "</tbody></table></div>";
 }
-var body = $("rows"), open = {};
+function prevOf(a, g, i){   // i = index in the original (oldest-first) series
+  var r = a.s[g][i];
+  if (g !== "Y") return a.s[g][i-1] || null;
+  var py = a.s.Y[i-1]; return r.cmp || (r.full && py && py.full ? py : null);
+}
+function num(v, m){ return v == null ? "" : (m[3] === "%" ? (v*100).toFixed(2) + "%" : v.toFixed(2)); }
+function pc(d){ return d == null ? "" : (d*100).toFixed(2) + "%"; }
+function q(x){ x = String(x); return /[",\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x; }
+function save(name, rows){
+  var csv = "\ufeff" + rows.map(function(r){ return r.map(q).join(","); }).join("\r\n");
+  var url = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+  var l = document.createElement("a"); l.href = url; l.download = name; document.body.appendChild(l); l.click();
+  setTimeout(function(){ URL.revokeObjectURL(url); l.remove(); }, 0);
+}
+var HDR = []; MET.forEach(function(m){ HDR.push(m[1], m[1] + " % chg"); });
+function csvAccount(a, g){
+  var out = [["Data Range"].concat(HDR, ["Partial ads", "Partial sales"])];
+  for (var i = a.s[g].length - 1; i >= 0; i--) {
+    var r = a.s[g][i], p = prevOf(a, g, i), L = lbl(g, r.k).replace("\u2013", "-");
+    if (g === "W") L = r.k + " to " + new Date(new Date(r.k + "T00:00:00Z").getTime() + 6*864e5).toISOString().slice(0, 10);
+    if (g === "Y" && r.months && !r.full) L += " (" + MN[+r.months[0].slice(5)-1] + "-" + MN[+r.months[1].slice(5)-1] + ")";
+    var row = [L]; MET.forEach(function(m){ row.push(num(r[m[0]], m), pc(p ? chg(r[m[0]], p[m[0]]) : null)); });
+    out.push(row.concat([r.pa ? "yes" : "", r.pt ? "yes" : ""]));
+  }
+  var G = {W: "weekly", M: "monthly", Y: "annual"}[g];
+  save(a.brand.replace(/&#x27;|&amp;|[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "") + "_performance_" + G + ".csv", out);
+}
+function csvSummary(){
+  var out = [["Account", "AM", "PPC", "Status", "Currency"].concat(HDR.map(function(h){ return h.indexOf("% chg") > 0 ? h + " vs " + D.prev : h + " " + D.month; }))];
+  shown.forEach(function(a){
+    var row = [a.brand.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"), a.am, a.ppc.join(", "), a.status, a.cur.trim()];
+    var cur = null, prev = null;
+    if (a.s) a.s.M.forEach(function(r, i){ if (r.k === D.month) { cur = r; prev = a.s.M[i-1] && a.s.M[i-1].k === D.prev ? a.s.M[i-1] : null; } });
+    MET.forEach(function(m){ row.push(cur ? num(cur[m[0]], m) : "", cur && prev ? pc(chg(cur[m[0]], prev[m[0]])) : ""); });
+    out.push(row);
+  });
+  save("performance_overview_" + D.month + "_vs_" + D.prev + ".csv", out);
+}
+var body = $("rows"), open = {}, shown = [];
 function render(){
-  var t = $("q").value.trim().toLowerCase(), am = $("am").value, ppc = $("ppc").value, st = $("st").value, n = 0, h = "";
+  var t = $("q").value.trim().toLowerCase(), am = $("am").value, ppc = $("ppc").value, st = $("st").value, n = 0, h = ""; shown = [];
   D.rows.forEach(function(a){
     var s = a.status;
     var ok = (!t || (a.brand + " " + a.note).toLowerCase().indexOf(t) >= 0) && (!am || a.am === am)
       && (!ppc || a.ppc.indexOf(ppc) >= 0) && (st === "" || (st === "current" ? s !== "inactive" : s === st));
-    if (!ok) return; n++;
+    if (!ok) return; n++; shown.push(a);
     var who = '<div class="who">' + [a.am, a.ppc.join(", ")].filter(Boolean).join(" · ") + '</div>';
     var tag = s !== "active" ? '<span class="pill">' + s.charAt(0).toUpperCase() + s.slice(1) + '</span>' : "";
     if (!a.s) { h += '<tr><td><span class="car"></span><b>' + a.brand + '</b>' + tag + who + '</td><td colspan="5" style="text-align:left" class="na">Not connected in Marketplace Ad Pros</td></tr>'; return; }
@@ -261,7 +304,7 @@ function render(){
       var g = open[a.id];
       h += '<tr class="det"><td colspan="6"><div class="det-h"><div class="seg" data-id="' + a.id + '">'
         + [["W","Weekly"],["M","Monthly"],["Y","Annual"]].map(function(x){ return '<button data-g="' + x[0] + '"' + (g === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>'; }).join("")
-        + '</div><a href="../accounts/' + a.slug + '/">Open account hub &rarr;</a></div>' + mini(a, g) + '</td></tr>';
+        + '</div><div class="det-r"><button class="dl" data-csv="' + a.id + '">Download CSV</button><a href="../accounts/' + a.slug + '/">Open account hub &rarr;</a></div></div>' + mini(a, g) + '</td></tr>';
     }
   });
   body.innerHTML = h || '<tr><td colspan="6" class="na">No accounts match the filters.</td></tr>';
@@ -271,11 +314,14 @@ function render(){
 body.addEventListener("click", function(e){
   var b = e.target.closest(".seg button");
   if (b) { open[b.parentNode.getAttribute("data-id")] = b.getAttribute("data-g"); render(); return; }
+  var c = e.target.closest("[data-csv]");
+  if (c) { var id = c.getAttribute("data-csv"); D.rows.forEach(function(a){ if (a.id === id) csvAccount(a, open[id] || "M"); }); return; }
   if (e.target.closest("a") || e.target.closest(".det")) return;
   var tr = e.target.closest("tr.acc"); if (!tr) return;
   var id = tr.getAttribute("data-id"); if (open[id]) delete open[id]; else open[id] = "M"; render();
 });
 try { var f = JSON.parse(localStorage.getItem("xp-hub-f") || "{}"); ["am","ppc","st"].forEach(function(k){ if (f[k] !== undefined) $(k).value = f[k]; }); } catch (e) {}
+$("dl-all").addEventListener("click", csvSummary);
 ["am","ppc","st"].forEach(function(k){ $(k).addEventListener("change", render); }); $("q").addEventListener("input", render);
 render();
 })();
@@ -301,7 +347,7 @@ def page(rows, data_end, today):
 {H.hero_html("Performance Overview", P.logo_b64(), "US", today, f"{mlab(month)} vs {mlab(prev)}")}
 <main>
 <div class="tabs-top"><a href="./">Account Hubs</a><a class="on" href="performance.html">Performance Overview</a></div>
-<h2>Performance Overview &middot; {mlab(month)} vs {mlab(prev)}</h2>
+<div class="h2row"><h2>Performance Overview &middot; {mlab(month)} vs {mlab(prev)}</h2><button class="dl" id="dl-all" title="Accounts currently shown, with the filters applied">Download CSV</button></div>
 <div class="tools">
   {sel("am", "AM", ams)}{sel("ppc", "PPC", ppcs)}
   <select id="st" aria-label="Status"><option value="current">Current accounts</option><option value="inactive">Inactive</option><option value="">All accounts</option></select>
