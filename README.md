@@ -42,6 +42,16 @@ with the paths.
   The page appears under "Other Pages" on Home and in every page's Pages switcher. To reserve a new path
   for every account, add it to `RESERVED_PAGES` in the script and re-run `init`.
 
+## Performance Overview (hub/performance.html)
+
+One row per hub account: last full month vs the month before for Total Sales, Ad Spend, Ad Sales, ACoS, TACoS.
+Click an account for its Weekly / Monthly / Annual table (same layout as the Performance Overview Tracker sheet).
+Same AM / PPC / status filters as the Account Hubs page. Data: MAP, US marketplace (UK for Badass Moto Europe).
+
+1. Pull the MAP results (ads by brand x currency x week/month, `sp_sales_traffic`, `sp_vendor_sales`) into a folder outside the repo; the queries are in the docstring of `tools/build_performance.py`.
+2. `python3 tools/build_performance.py --repo . --raw <folder> --data-end <last Saturday of full data>`
+3. MAP brand to hub account mapping lives in `BRANDS` in that script; add new accounts there.
+
 ## Monthly run (10th of each month)
 
 1. Run `xp-monthly-account-review` for the account (MAP data, no manual input).

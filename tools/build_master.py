@@ -29,6 +29,9 @@ a.hubl { font-weight: 600; text-decoration: none; border-bottom: 2px solid %(acc
 .pill.on { border-color: %(accent)s; color: %(dark)s; }
 .na { color: %(muted)s; }
 .wrap { overflow-x: auto; }
+.tabs-top { display:flex; gap:6px; margin: 0 0 18px; }
+.tabs-top a { font-size: 13px; padding: 7px 14px; border: 1px solid %(border)s; border-radius: 6px; text-decoration: none; color: %(ink)s; background:#fff; }
+.tabs-top a.on { background: %(dark)s; color: #fff; border-color: %(dark)s; }
 @media (max-width: 720px) {
   table, thead, tbody, tr, td { display: block; width: 100%%; }
   thead { display: none; }
@@ -105,7 +108,9 @@ tr.inactive td {{ opacity: .6; }}
 .xph-meta > div:last-child {{ display: none; }}
 </style></head><body>
 {H.hero_html("Account Hubs", P.logo_b64(), "US", today, None)}
-<main><h2>Account Hubs</h2>
+<main>
+<div class="tabs-top"><a class="on" href="./">Account Hubs</a><a href="performance.html">Performance Overview</a></div>
+<h2>Account Hubs</h2>
 <div class="tools">
   <select id="pick" aria-label="Open an account hub"><option value="">Open an account hub…</option>{opts}</select>
   {sel("am", "AM", ams)}{sel("ppc", "PPC", ppcs)}
