@@ -39,6 +39,7 @@ BRANDS = {
     "Inglesina USA": ("inglesina", None, "USD"),
     "Joe's Trends": ("joes-trend", None, "USD"),
     "Kensington Valley Trading": ("kensingtonvalleytrading", None, "USD"),
+    "Kitchen Globe": ("boroux", None, "USD"),          # Boroux's MAP brand (Oct 2026 spend $6,419.45 matches MerchantSpring "Boroux")
     "Leading Choice Products": ("leading-choice-products", None, "USD"),
     "M-D Building Products": ("md-buildingproducts", None, "USD"),
     "Reliable Home Products": ("md-buildingproducts", None, "USD"),   # same account as M-D (tracker: "MD Building Products | Reliable Home Products")
@@ -197,6 +198,7 @@ tr.det > td { background: #fafaf7; padding: 14px 16px 18px; }
 .dl:hover { border-color: %(accent)s; }
 .h2row { display:flex; justify-content:space-between; align-items:flex-end; gap:10px; border-bottom: 2px solid %(border)s; margin-bottom: 18px; padding-bottom: 10px; }
 .h2row h2 { border: 0; margin: 0; padding: 0; }
+.upd { font-size: 12.5px; color: %(muted)s; margin-top: 4px; }
 .mini { max-height: 460px; overflow: auto; border: 1px solid %(border)s; border-radius: 6px; background:#fff; }
 .mini th { background: #2b2f38; }
 .mini td, .mini th { padding: 7px 12px; font-size: 13px; }
@@ -347,7 +349,8 @@ def page(rows, data_end, today):
 {H.hero_html("Performance Overview", P.logo_b64(), "US", today, f"{mlab(month)} vs {mlab(prev)}")}
 <main>
 <div class="tabs-top"><a href="./">Account Hubs</a><a class="on" href="performance.html">Performance Overview</a></div>
-<div class="h2row"><h2>Performance Overview &middot; {mlab(month)} vs {mlab(prev)}</h2><button class="dl" id="dl-all" title="Accounts currently shown, with the filters applied">Download CSV</button></div>
+<div class="h2row"><div><h2>Performance Overview &middot; {mlab(month)} vs {mlab(prev)}</h2>
+<div class="upd">Last updated {date.fromisoformat(today).strftime("%b %-d, %Y")} &middot; data through {data_end.strftime("%b %-d, %Y")} &middot; weekly view through week of {(data_end - timedelta(days=6)).strftime("%b %-d")}</div></div><button class="dl" id="dl-all" title="Accounts currently shown, with the filters applied">Download CSV</button></div>
 <div class="tools">
   {sel("am", "AM", ams)}{sel("ppc", "PPC", ppcs)}
   <select id="st" aria-label="Status"><option value="current">Current accounts</option><option value="inactive">Inactive</option><option value="">All accounts</option></select>
