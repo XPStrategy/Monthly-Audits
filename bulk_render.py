@@ -82,7 +82,10 @@ def card(tag, title, btn, meta, rule, body, extra="", src=""):
 def render_blocks(bulk, acct, lag=None):
     f = bulk["files"]; T = bulk.get("reference_acos"); built = dt.date.fromisoformat(bulk["run_date"]).strftime("%b %-d, %Y")
     tag = f"Bulk upload file · built {built}"
-    foot = ('<p class="sub">Amazon Ads bulksheet (Sponsored Products). IDs are stored as text; the metric columns are for review '
+    live_note = (f'<p class="sub">Checked against the live account ({esc(bulk.get("live_state"))}): rows that already exist, and ad groups that are not enabled, are left out.</p>'
+                 if "bulk download" in str(bulk.get("live_state", "")) or "API" in str(bulk.get("live_state", "")) else
+                 '<p class="sub">No live campaign list for this run: existing keywords and negatives were checked against report data only.</p>')
+    foot = live_note + ('<p class="sub">Amazon Ads bulksheet (Sponsored Products). IDs are stored as text; the metric columns are for review '
             'only and are ignored by Amazon on upload. Review before uploading in Amazon Ads &rarr; Bulk operations.</p>')
     out = {}
 
@@ -136,7 +139,7 @@ def render_blocks(bulk, acct, lag=None):
 
     # ---- products
     p = bulk["products"]
-    rows = [[f'{esc(x["name"] or "")}<div class="sub">{esc(x["asin"])}</div>', esc(x["status"]), money(x["sales_60"]), num(x["units_60"]), money(x["ad_spend_60"]),
+    rows = [[f'{esc(x["name"] or "")}<div class="sub">{esc(x["asin"])}</div>', esc(x["status"]) + ("" if x.get("live_ad") is None else ('<div class="sub">enabled ad exists</div>' if x["live_ad"] else '<div class="sub">no enabled ad</div>')), money(x["sales_60"]), num(x["units_60"]), money(x["ad_spend_60"]),
              f'{x["ratio"]:.2f}x', num(x["available"]), "—" if x["weeks_cover"] is None else f'{x["weeks_cover"]:.1f}',
              ("In file" if x.get("file") else esc(x.get("reason", ""))) if "file" in x else ("under $1,000 sales" if x["sales_60"] < 1000 else "listed only")]
             for x in sorted(p["rows"], key=lambda x: (x["ratio"], -x["sales_60"]))]

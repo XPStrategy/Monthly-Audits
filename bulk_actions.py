@@ -21,8 +21,10 @@ HEAD = ["Product", "Entity", "Operation", "Campaign ID", "Ad Group ID", "Portfol
         "Reason for Ineligibility (Informational only)", "Ad Group Default Bid", "Ad Group Default Bid (Informational only)",
         "Bid", "Keyword Text", "Native Language Keyword", "Native Language Locale", "Match Type", "Bidding Strategy",
         "Placement", "Percentage", "Product Targeting Expression",
-        "Resolved Product Targeting Expression (Informational only)", "Impressions", "Clicks", "Click-through Rate",
-        "Spend", "Sales", "Orders", "Units", "Conversion Rate", "ACOS", "CPC", "ROAS"]
+        "Resolved Product Targeting Expression (Informational only)", "Audience ID", "Shopper Cohort Percentage",
+        "Shopper Cohort Type", "Segment Name (Informational only)", "Sites", "Off-Amazon ad serving", "Video Asset ID",
+        "Video Headline", "Video Description", "Video Optimized Text", "Video Status", "Impressions", "Clicks",
+        "Click-through Rate", "Spend", "Sales", "Orders", "Units", "Conversion Rate", "ACOS", "CPC", "ROAS"]
 TEXT_COLS = {"Campaign ID", "Ad Group ID", "Portfolio ID", "Ad ID", "Keyword ID", "Product Targeting ID", "SKU",
              "Start Date", "Keyword Text"}
 ASIN_RE = re.compile(r"^b0[a-z0-9]{8}$")
@@ -54,6 +56,41 @@ def load(d, name, default=None):
         for r in x:
             r.pop("pad", None)
     return x
+
+
+def load_live(d):
+    """Live account state: Amazon bulk download (live_bulk.xlsx, enabled entities) or the live_*.json API pulls.
+    Returns None when neither is in the folder."""
+    p = os.path.join(d, "live_bulk.xlsx")
+    if not os.path.exists(p):
+        return None
+    import openpyxl, warnings
+    warnings.filterwarnings("ignore")
+    ws = openpyxl.load_workbook(p, read_only=True)["Sponsored Products Campaigns"]
+    it = ws.iter_rows(values_only=True); H = next(it)
+    low = lambda x: (x or "").strip().lower()
+    L = {"source": "Amazon Ads bulk download", "ad_groups": set(), "campaigns": {}, "neg_ag": set(), "neg_c": set(),
+         "neg_pt": set(), "exact": set(), "pt": set(), "ad_asins": set()}
+    for row in it:
+        r = dict(zip(H, row)); e = r["Entity"]; st = low(r.get("State"))
+        if e == "Campaign":
+            L["campaigns"][r["Campaign ID"]] = r
+        elif e == "Ad Group" and st == "enabled":
+            L["ad_groups"].add(r["Ad Group ID"])
+        elif e == "Negative Keyword":
+            L["neg_ag"].add((r["Ad Group ID"], low(r["Keyword Text"]), low(r["Match Type"])))
+        elif e == "Campaign Negative Keyword":
+            L["neg_c"].add((r["Campaign ID"], low(r["Keyword Text"]), low(r["Match Type"])))
+        elif e in ("Negative Product Targeting",):
+            L["neg_pt"].add((r["Ad Group ID"], low(r["Product Targeting Expression"])))
+        elif e == "Keyword" and st == "enabled" and low(r["Match Type"]) == "exact":
+            L["exact"].add(low(r["Keyword Text"]))
+        elif e == "Product Targeting" and st == "enabled":
+            L["pt"].add(low(r["Product Targeting Expression"]))
+        elif e == "Product Ad" and st == "enabled" and low(r.get("Ad Group State (Informational only)")) == "enabled" \
+                and low(r.get("Campaign State (Informational only)")) == "enabled":
+            L["ad_asins"].add(r["ASIN (Informational only)"])
+    return L
 
 
 def r2(v):
@@ -99,6 +136,7 @@ def main():
     if isinstance(skus_extra, list):
         skus_extra = {r["asin"]: r for r in skus_extra}
     own_asins = {r["a"].lower() for r in pads} | {r["a"].lower() for r in sc}
+    live = load_live(D)
 
     # ---------------- account references (all from data) ----------------
     sp60 = sum(r["sp60"] for r in camps); sl60 = sum(r["sl60"] for r in camps)
@@ -122,6 +160,8 @@ def main():
     exact_cov = {(r["target"] or "").lower().strip() for r in tg if r.get("ktype") == "EXACT"}
     exact_cov |= {r["term"] for r in st if r.get("exact_covered")}
     exact_cov |= {r["t"] for r in hv if (r.get("o_ex") or 0) > 0}
+    if live:
+        exact_cov |= live["exact"]
     asin_targeted = {m.group(1) for r in tg if r.get("ktype") == "TARGETING_EXPRESSION"
                      for m in [re.search(r'asin(?:-expanded)?="?([a-z0-9]{10})', (r["target"] or "").lower())] if m}
 
@@ -156,7 +196,7 @@ def main():
             return None, "no product ad found"
         return None, "source ad group holds several ASINs"
 
-    out = {"run_date": a.run_date, "reference_acos": T, "reference_acos_source": "account SP ACoS, last 60 days",
+    out = {"live_state": (live or {}).get("source", "report data only (no live campaign list)"), "run_date": a.run_date, "reference_acos": T, "reference_acos_source": "account SP ACoS, last 60 days",
            "cpa": CPA, "prefix": prefix, "files": {}, "notes": []}
     os.makedirs(os.path.join(D, "bulk"), exist_ok=True)
     fname = lambda k: f"{slug}_{k}_{mon}.xlsx"
@@ -166,10 +206,11 @@ def main():
     for b in recs.get("constrained", []):
         c = camp_by.get(str(b["campaign_id"]), {})
         acos = (c.get("sp30") or 0) / c["sl30"] if c.get("sl30") else None
-        item = {"campaign_id": str(b["campaign_id"]), "campaign": c.get("cn", b["campaign_id"]), "budget": c.get("bud"),
+        lb = live["campaigns"].get(str(b["campaign_id"]), {}).get("Daily Budget") if live else None
+        item = {"campaign_id": str(b["campaign_id"]), "campaign": c.get("cn", b["campaign_id"]), "budget": lb if lb is not None else c.get("bud"),
                 "suggested": b["suggested"], "tib": b["tib"], "acos_l30": acos, "spend_l30": c.get("sp30"),
                 "missed_sales": [b["missed_sales_lo"], b["missed_sales_hi"]]}
-        if acos is not None and T and acos <= T and b["suggested"] > (c.get("bud") or 0):
+        if acos is not None and T and acos <= T and b["suggested"] > (item["budget"] or 0):
             inc_b.append(item)
             rows_b.append({"Product": "Sponsored Products", "Entity": "Campaign", "Operation": "Update",
                            "Campaign ID": item["campaign_id"], "Campaign Name (Informational only)": item["campaign"],
@@ -206,14 +247,23 @@ def main():
             key = (r["g"], t)
             if key in seen:
                 continue
+            if live:
+                if r["g"] not in live["ad_groups"]:
+                    continue
+                if ASIN_RE.match(t) and (r["g"], f'asin="{t}"') in live["neg_pt"]:
+                    continue
+                if not ASIN_RE.match(t) and ((r["g"], t, "negative exact") in live["neg_ag"] or (r["c"], t, "negative exact") in live["neg_c"]):
+                    continue
             seen.add(key); placed += 1
             base = {"Product": "Sponsored Products", "Operation": "Create", "Campaign ID": r["c"], "Ad Group ID": r["g"],
                     "Campaign Name (Informational only)": r["cn"], "Ad Group Name (Informational only)": r["gn"],
                     "State": "enabled", "Spend": r["sp"], "Clicks": r["k"], "Orders": 0}
             if ASIN_RE.match(t):
-                rows_n.append({**base, "Entity": "Negative Product Targeting", "Product Targeting Expression": f'asin="{t.upper()}"'})
+                rows_n.append({**base, "Entity": "Negative Product Targeting", "Product Targeting Expression": f'asin="{t.lower()}"'})
             else:
-                rows_n.append({**base, "Entity": "Negative Keyword", "Keyword Text": t, "Match Type": "negative exact"})
+                rows_n.append({**base, "Entity": "Negative Keyword", "Keyword Text": t, "Match Type": "Negative Exact"})
+        if not placed and live:
+            exc_n.append({"term": t, "class": c_, "spend": tot, "clicks": clicks, "reason": "already negated in every enabled ad group where it spent"}); continue
         inc_n.append({"term": t, "class": c_, "spend": tot, "clicks": clicks, "ad_groups": placed,
                       "note": "" if placed else "only on an Exact keyword: pause that keyword"})
     inc_n.sort(key=lambda x: -x["spend"]); exc_n.sort(key=lambda x: -x["spend"])
@@ -244,9 +294,9 @@ def main():
                         "State": "enabled", "Bid": x["bid"], "Spend": x.get("spend"), "Sales": x.get("sales"),
                         "Orders": x.get("orders"), "Clicks": x.get("clicks"), "ACOS": r2(x.get("acos"))}
                 if ASIN_RE.match(x["term"]):
-                    rows.append({**base, "Entity": "Product Targeting", "Product Targeting Expression": f'asin="{x["term"].upper()}"'})
+                    rows.append({**base, "Entity": "Product Targeting", "Product Targeting Expression": f'asin="{x["term"].lower()}"'})
                 else:
-                    rows.append({**base, "Entity": "Keyword", "Keyword Text": x["term"], "Match Type": "exact"})
+                    rows.append({**base, "Entity": "Keyword", "Keyword Text": x["term"], "Match Type": "Exact"})
         missing = [g for g in groups if not sku_by.get(g)]
         write_bulk(os.path.join(D, "bulk", fname(kind)), rows); out["files"][kind] = fname(kind)
         return {"campaign": cid, "daily_budget": budget, "ad_groups": len(groups), "missing_sku": missing}
@@ -258,7 +308,7 @@ def main():
              "src_orders": r["o_src"]}
         if r["o_src"] < 1:
             continue
-        if t in exact_cov or (ASIN_RE.match(t) and t in asin_targeted):
+        if t in exact_cov or (ASIN_RE.match(t) and (t in asin_targeted or (live and f'asin="{t}"' in live["pt"]))):
             continue
         if len(t) > 80:
             continue
@@ -284,13 +334,18 @@ def main():
         if t in taken or t in exact_cov or ASIN_RE.match(t) or len(t) > 80 or not re.match(r"^[a-z0-9 &'.\-/]+$", t):
             continue
         s = stmap.get(t)
+        if s and (s.get("cost") or 0) >= (CPA or 0) and (not s.get("sales") or s["cost"] / s["sales"] > T):
+            continue   # already bought in ads above the reference ACoS: not a harvest
+        ex = skus_extra.get(q["top_asin"], {})
+        if ex.get("avail") is not None and ex["avail"] < 30:
+            continue   # low FBA stock
         bid = r2(s["cost"] / s["clicks"]) if s and (s["clicks"] or 0) >= 3 else med_exact
         sq_inc.append({"term": t, "class": cls(t), "brand_purchases": q["bp"], "brand_clicks": q["bc"], "asin": q["top_asin"],
                        "asin_source": "Brand Analytics top ASIN", "bid": max(0.25, bid), "bid_source": "term CPC" if s and (s["clicks"] or 0) >= 3 else "median Exact CPC",
                        "paid_spend": s["cost"] if s else 0.0, "paid_orders": s["orders"] if s else 0,
                        "daily_spend": max(0.25, bid) * q["bc"] / 56.0 * 0.5})
     out["sqp_harvest"] = {"included": sq_inc, "window_end": sqp[0]["e"] if sqp else None,
-                          "rule": "Brand Analytics queries with 3+ purchases of the brand's ASINs in the last 8 weeks, no Exact keyword with impressions in the last 60 days, not already in the search-term harvest file. Daily budget sized to half of the brand's current daily clicks on these queries at the bid. Bid = the term's average CPC when it has 3+ paid clicks, else the account's median Exact CPC."}
+                          "rule": "Brand Analytics queries with 3+ purchases of the brand's ASINs in the last 8 weeks, no Exact keyword with impressions in the last 60 days, not already in the search-term harvest file, not already bought in ads above the reference ACoS, ASIN not low on FBA stock. Daily budget sized to half of the brand's current daily clicks on these queries at the bid. Bid = the term's average CPC when it has 3+ paid clicks, else the account's median Exact CPC."}
     if sq_inc:
         out["sqp_harvest"].update(harvest_block(sq_inc, "harvest_sqp", "SQP"))
 
@@ -306,8 +361,9 @@ def main():
         wk = avail / (r["u"] / 60 * 7) if avail is not None and r["u"] else None
         prods.append({"asin": r["a"], "name": ex.get("name"), "sales_60": r["s"], "units_60": r["u"], "ad_spend_60": sp_asin.get(r["a"], 0.0),
                       "ratio": ratio, "available": avail, "weeks_cover": wk,
-                      "status": "Not advertised" if sp_asin.get(r["a"], 0) == 0 else ("Barely advertised" if ratio < 0.2 else ("Under-invested" if ratio < 0.7 else ""))})
-    push = [p for p in prods if p["status"] in ("Not advertised", "Barely advertised") and p["sales_60"] >= 1000]
+                      "live_ad": (r["a"] in live["ad_asins"]) if live else None,
+                      "status": "No ad spend" if sp_asin.get(r["a"], 0) == 0 else ("Barely advertised" if ratio < 0.2 else ("Under-invested" if ratio < 0.7 else ""))})
+    push = [p for p in prods if p["status"] in ("No ad spend", "Barely advertised") and p["sales_60"] >= 1000]
     for p in push:
         if p["available"] is None:
             p["file"] = False; p["reason"] = "no FBA stock record"
