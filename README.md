@@ -45,12 +45,17 @@ with the paths.
 ## Performance Overview (hub/performance.html)
 
 One row per hub account: last full month vs the month before for Total Sales, Ad Spend, Ad Sales, ACoS, TACoS.
-Click an account for its Weekly / Monthly / Annual table (same layout as the Performance Overview Tracker sheet).
-Same AM / PPC / status filters as the Account Hubs page. Data: MAP, US marketplace (UK for Badass Moto Europe).
+Click an account for its Weekly (last 24 weeks) / Monthly (last 24 months) / Annual table, with CSV downloads.
+Same AM / PPC / status filters as the Account Hubs page.
 
-1. Pull the MAP results (ads by brand x currency x week/month, `sp_sales_traffic`, `sp_vendor_sales`) into a folder outside the repo; the queries are in the docstring of `tools/build_performance.py`.
-2. `python3 tools/build_performance.py --repo . --raw <folder> --data-end <last Saturday of full data>`
-3. MAP brand to hub account mapping lives in `BRANDS` in that script; add new accounts there.
+Source: MerchantSpring (what clients see), US marketplace (UK for Nature Blends). Badass Moto is not in MerchantSpring and falls back to MAP.
+
+1. Per store (channel list in `MS_CHANNELS` in `tools/build_performance.py`), one call at a time (parallel calls time out):
+   - Seller Central: `getSalesByPeriod`, includeTax=false, interval `w` (23 weeks + previousPeriod) and `M` (12 months + same 12 a year earlier)
+   - Vendor Central: `getVendorSalesByPeriod` (orderedRevenue), same windows; `getSalesByPeriod` does not return ordered revenue for vendors
+   - Save `{"currency", "rows": [{startTime, endTime, sales, priorSales, adSpend, priorAdSpend, adSales, priorAdSales}]}` as `<channelId>_W.json` / `<channelId>_M.json` in a folder outside the repo
+2. `python3 tools/build_performance.py --repo . --ms <ms folder> --raw <MAP folder> --data-end <last Saturday>`
+3. New account: add its MerchantSpring channelId to `MS_CHANNELS`.
 
 ## Monthly run (10th of each month)
 

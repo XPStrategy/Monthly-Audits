@@ -140,16 +140,113 @@ def series(acc_key, data_end):
     return {"W": W, "M": Mo, "Y": Y}
 
 
-def build_rows(repo, raw, data_end):
+# MerchantSpring (the source clients see): channelId -> hub client slug. Several stores can roll up into one
+# account (Seller + Vendor Central, or an agency's brands). Stores not listed are not hub accounts.
+MS_CHANNELS = {
+    "94801626": "advanced-bionutritionals", "42580271": "bingo1525", "106902004": "bohemiaskin",
+    "20313310": "boroux", "13585440": "cosmo-technologies", "93574878": "displate", "48122808": "dzg-products",
+    "16035967": "inglesina", "117718061": "joes-trend", "13427311": "kensingtonvalleytrading",
+    "13145540": "leading-choice-products", "107106228": "md-buildingproducts", "105122631": "md-buildingproducts",
+    "102432899": "nutrivein", "13467156": "savongoods", "95420482": "shinewater", "81889729": "skysailconsumer",
+    "47349140": "southerndental", "13428328": "spring-mount-supply", "31389730": "steam-clip",
+    "101314217": "trailheads-apparel", "118288902": "turmskin", "13419844": "ultimate-footwear",
+    "38104006": "ultimate-footwear", "114883607": "ultimate-washer", "66964067": "versa-group",
+    "67364816": "versa-group", "99754043": "altun", "51216696": "altun", "87238171": "altun",
+    "105539804": "altun", "100722276": "nature-blends", "118847691": "sidekick", "118710086": "smart-cookie",
+}
+MON = {m: i for i, m in enumerate(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], 1)}
+
+
+def load_ms(msdir):
+    """MerchantSpring getSalesByPeriod files (<channelId>_W.json / _M.json, each bucket carries the
+    period plus the same-length prior period) -> {client: {"W"|"M": {key: {ts, sp, asl}}, "cur", "ads"}}."""
+    out = {}
+    for ch, client in MS_CHANNELS.items():
+        for g in ("W", "M"):
+            f = os.path.join(msdir, f"{ch}_{g}.json")
+            if not os.path.exists(f):
+                continue
+            d = json.load(open(f))
+            a = out.setdefault(client, {"W": defaultdict(lambda: defaultdict(float)),
+                                        "M": defaultdict(lambda: defaultdict(float)), "cur": d.get("currency", "USD"),
+                                        "ads": False, "stores": set()})
+            a["stores"].add(ch)
+            for r in d["rows"]:
+                if g == "W":
+                    dd, mm, yy = map(int, r["startTime"].split("/"))
+                    k = date(yy, mm, dd); kp = k - timedelta(days=7 * len(d["rows"]))
+                    k, kp = k.isoformat(), kp.isoformat()
+                else:
+                    mo, yy = r["startTime"].split(); k = f"{yy}-{MON[mo]:02d}"; kp = f"{int(yy) - 1}-{MON[mo]:02d}"
+                for key, pre in ((k, ""), (kp, "prior")):
+                    c = a[g][key]
+                    f_ = (lambda n: float(r[pre + n[0].upper() + n[1:]] if pre else r[n]))
+                    c["ts"] += f_("sales"); c["sp"] += f_("adSpend"); c["asl"] += f_("adSales")
+                    if f_("adSpend") > 0:
+                        a["ads"] = True
+    return out
+
+
+def ms_series(a):
+    """Rows for the page from one MerchantSpring account. Leading periods before the store had data are dropped;
+    ads show as missing when the account has no ad spend at all in the window."""
+    def rows(g):
+        ks = sorted(a[g]); out = []; started = False
+        for k in ks:
+            c = a[g][k]
+            if not started and c["ts"] == 0 and c["sp"] == 0:
+                continue
+            started = True
+            ts = round(c["ts"], 2) if c["ts"] else None
+            sp = round(c["sp"], 2) if a["ads"] else None
+            asl = round(c["asl"], 2) if a["ads"] else None
+            out.append({"k": k, "ts": ts, "sp": sp, "asl": asl,
+                        "acos": (sp / asl) if sp is not None and asl else None,
+                        "tacos": (sp / ts) if sp is not None and ts else None, "pa": False, "pt": False})
+        return out
+    W, Mo = rows("W")[-25:], rows("M")[-25:]     # latest 24 weeks / 24 months (+1 so the oldest shown has a % change)
+    Y = []
+    last = Mo[-1]["k"] if Mo else None
+    for y in sorted({r["k"][:4] for r in Mo}):
+        ms = [r for r in Mo if r["k"][:4] == y]
+        if len(ms) < 12 and y != last[:4]:
+            continue                               # partial year at the start of the 24-month window: skip
+        tot = lambda f: (round(sum(r[f] for r in ms if r[f] is not None), 2) if any(r[f] is not None for r in ms) else None)
+        ts, sp, asl = tot("ts"), tot("sp"), tot("asl")
+        row = {"k": y, "ts": ts, "sp": sp, "asl": asl, "acos": (sp / asl) if sp is not None and asl else None,
+               "tacos": (sp / ts) if sp is not None and ts else None, "pa": False, "pt": False,
+               "months": [ms[0]["k"], ms[-1]["k"]], "full": len(ms) == 12}
+        if not row["full"]:                        # YTD vs the same months of the year before
+            upto = ms[-1]["k"][5:]
+            pm = [r for r in Mo if r["k"][:4] == str(int(y) - 1) and r["k"][5:] <= upto]
+            if pm:
+                pts = sum(r["ts"] or 0 for r in pm); psp = sum(r["sp"] or 0 for r in pm) if sp is not None else None
+                pas = sum(r["asl"] or 0 for r in pm) if sp is not None else None
+                row["cmp"] = {"k": str(int(y) - 1), "ts": pts or None, "sp": psp, "asl": pas,
+                              "acos": (psp / pas) if psp is not None and pas else None,
+                              "tacos": (psp / pts) if psp is not None and pts else None}
+        Y.append(row)
+    return {"W": W, "M": Mo, "Y": Y}
+
+
+def build_rows(repo, raw, data_end, msdir=None):
     acc, meta = load(raw)
     hubs = {r["slug"]: r for r in M.rows(repo)}
     by_client = {re.sub(r"-[0-9a-f]{8}$", "", s): r for s, r in hubs.items()}
     out = []
-    for key, (slug, label, cur) in meta.items():
-        h = by_client.get(slug)
+    ms = load_ms(msdir) if msdir else {}
+    for client, a in ms.items():
+        h = by_client.get(client)
         if not h:
             continue
-        out.append({"id": key, "client": slug, "slug": h["slug"], "brand": label or h["brand"], "cur": SYM.get(cur, cur + " "),
+        out.append({"id": client, "client": client, "slug": h["slug"], "brand": h["brand"],
+                    "cur": SYM.get(a["cur"], a["cur"] + " "), "src": "MerchantSpring",
+                    "am": h["am"], "ppc": h["ppc"], "status": h["status"], "note": h["note"], "s": ms_series(a)})
+    for key, (slug, label, cur) in meta.items():
+        h = by_client.get(slug)
+        if not h or slug in ms:
+            continue
+        out.append({"id": key, "client": slug, "slug": h["slug"], "brand": label or h["brand"], "cur": SYM.get(cur, cur + " "), "src": "Marketplace Ad Pros",
                     "am": h["am"], "ppc": h["ppc"], "status": h["status"], "note": h["note"],
                     "s": series(acc[key], data_end)})
     seen = {r["client"] for r in out}
@@ -237,6 +334,7 @@ function lbl(g, k){
 function flags(m, r){ return (r.pa && (m[0] !== "ts")) || (r.pt && (m[0] === "ts" || m[0] === "tacos")); }
 function mini(a, g){
   var rows = a.s[g].slice().reverse(), h = "", lastY = null;
+  if (g !== "Y") rows = rows.slice(0, 24);
   if (!rows.length) return '<p class="na">No data for this view.</p>';
   rows.forEach(function(r, i){
     var py = a.s.Y[a.s.Y.length - 2 - i];
@@ -266,7 +364,7 @@ function save(name, rows){
 var HDR = []; MET.forEach(function(m){ HDR.push(m[1], m[1] + " % chg"); });
 function csvAccount(a, g){
   var out = [["Data Range"].concat(HDR, ["Partial ads", "Partial sales"])];
-  for (var i = a.s[g].length - 1; i >= 0; i--) {
+  for (var i = a.s[g].length - 1; i >= Math.max(0, g === "Y" ? 0 : a.s[g].length - 24); i--) {
     var r = a.s[g][i], p = prevOf(a, g, i), L = lbl(g, r.k).replace("\u2013", "-");
     if (g === "W") L = r.k + " to " + new Date(new Date(r.k + "T00:00:00Z").getTime() + 6*864e5).toISOString().slice(0, 10);
     if (g === "Y" && r.months && !r.full) L += " (" + MN[+r.months[0].slice(5)-1] + "-" + MN[+r.months[1].slice(5)-1] + ")";
@@ -297,7 +395,7 @@ function render(){
     if (!ok) return; n++; shown.push(a);
     var who = '<div class="who">' + [a.am, a.ppc.join(", ")].filter(Boolean).join(" · ") + '</div>';
     var tag = s !== "active" ? '<span class="pill">' + s.charAt(0).toUpperCase() + s.slice(1) + '</span>' : "";
-    if (!a.s) { h += '<tr><td><span class="car"></span><b>' + a.brand + '</b>' + tag + who + '</td><td colspan="5" style="text-align:left" class="na">Not connected in Marketplace Ad Pros</td></tr>'; return; }
+    if (!a.s) { h += '<tr><td><span class="car"></span><b>' + a.brand + '</b>' + tag + who + '</td><td colspan="5" style="text-align:left" class="na">Not connected in MerchantSpring</td></tr>'; return; }
     var Ms = a.s.M, cur = null, prev = null;
     for (var i = Ms.length - 1; i >= 0; i--) if (Ms[i].k === D.month) { cur = Ms[i]; prev = Ms[i-1] && Ms[i-1].k === D.prev ? Ms[i-1] : null; break; }
     h += '<tr class="acc' + (open[a.id] ? " open" : "") + '" data-id="' + a.id + '"><td><span class="car">&#9656;</span><b>' + a.brand + '</b>' + tag + who + '</td>'
@@ -306,7 +404,7 @@ function render(){
       var g = open[a.id];
       h += '<tr class="det"><td colspan="6"><div class="det-h"><div class="seg" data-id="' + a.id + '">'
         + [["W","Weekly"],["M","Monthly"],["Y","Annual"]].map(function(x){ return '<button data-g="' + x[0] + '"' + (g === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>'; }).join("")
-        + '</div><div class="det-r"><button class="dl" data-csv="' + a.id + '">Download CSV</button><a href="../accounts/' + a.slug + '/">Open account hub &rarr;</a></div></div>' + mini(a, g) + '</td></tr>';
+        + '</div><div class="det-r"><span class="who">Source: ' + a.src + '</span><button class="dl" data-csv="' + a.id + '">Download CSV</button><a href="../accounts/' + a.slug + '/">Open account hub &rarr;</a></div></div>' + mini(a, g) + '</td></tr>';
     }
   });
   body.innerHTML = h || '<tr><td colspan="6" class="na">No accounts match the filters.</td></tr>';
@@ -360,10 +458,10 @@ def page(rows, data_end, today):
 <div class="wrap"><table><thead><tr><th>Account &middot; click for weekly, monthly, annual</th><th>Total Sales</th><th>Ad Spend</th><th>Ad Sales</th><th>ACoS</th><th>TACoS</th></tr></thead>
 <tbody id="rows"></tbody></table></div>
 <p class="notes">Each cell: {mlab(month)} value, and the change vs {mlab(prev)}. Green = better, red = worse (higher ACoS and TACoS are worse); Ad Spend change is neutral.
-Total Sales = Seller Central ordered product sales + Vendor Central ordered revenue. Ad Spend and Ad Sales = Sponsored Products, Brands and Display (14-day attribution).
-ACoS = Ad Spend / Ad Sales. TACoS = Ad Spend / Total Sales. US marketplace only (UK for Badass Moto Europe). Only complete weeks (Sun&ndash;Sat) and months are shown;
-the current year is compared with the same months of the year before. <span class="flag">*</span> = source covers only part of the period (MAP ad history starts January 2026). &ndash; = source not connected in MAP for that period.</p>
-<p class="source" style="font-size:12px;color:{B.MUTED};margin-top:6px">Source: Marketplace Ad Pros (Amazon Ads, Seller Central sales &amp; traffic, Vendor Central sales), data through {data_end.strftime("%b %-d, %Y")}. AM and PPC from tools/account_team.json.</p>
+Source: MerchantSpring, the same numbers clients see (Badass Moto from Marketplace Ad Pros, as it is not connected in MerchantSpring). Total Sales = MerchantSpring sales excluding tax, Seller Central plus Vendor Central where an account has both.
+Ad Spend and Ad Sales = MerchantSpring advertising. ACoS = Ad Spend / Ad Sales. TACoS = Ad Spend / Total Sales. US marketplace only (UK for Nature Blends and Badass Moto Europe).
+History: last 24 full weeks (Sun&ndash;Sat) and last 24 full months; the current year is compared with the same months of the year before. &ndash; = not connected for that period.</p>
+<p class="source" style="font-size:12px;color:{B.MUTED};margin-top:6px">Source: MerchantSpring (sales and advertising by store), weeks through {data_end.strftime("%b %-d, %Y")}, months through {mlab(month)}. AM and PPC from tools/account_team.json.</p>
 </main>
 {H.footer_html(B.DISCLAIMER, f"data through {data_end.strftime('%b %-d, %Y')}", "Performance Overview", today)}
 <script>window.PERF = {data};</script>
@@ -371,8 +469,8 @@ the current year is compared with the same months of the year before. <span clas
 </body></html>"""
 
 
-def build(repo, raw, data_end):
-    rows = build_rows(repo, raw, data_end)
+def build(repo, raw, data_end, msdir=None):
+    rows = build_rows(repo, raw, data_end, msdir)
     p = os.path.join(repo, "hub", "performance.html")
     open(p, "w").write(page(rows, data_end, date.today().isoformat()))
     return p, rows
@@ -381,7 +479,8 @@ def build(repo, raw, data_end):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", default="."); ap.add_argument("--raw", required=True)
+    ap.add_argument("--ms", help="folder of MerchantSpring <channelId>_W.json / _M.json files (preferred source)")
     ap.add_argument("--data-end", required=True, help="last full day of MAP data, yyyy-mm-dd")
     a = ap.parse_args()
-    p, rows = build(a.repo, a.raw, date.fromisoformat(a.data_end))
+    p, rows = build(a.repo, a.raw, date.fromisoformat(a.data_end), a.ms)
     print("[done]", p, len(rows), "accounts,", sum(1 for r in rows if r["s"]), "with MAP data")
