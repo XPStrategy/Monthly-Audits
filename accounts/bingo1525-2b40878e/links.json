@@ -3,8 +3,8 @@
   "client": "bingo1525",
   "slug": "bingo1525-2b40878e",
   "marketplace": "US",
-  "updated": "2026-11-17T12:47:55+00:00",
-  "updated_date": "2026-11-17",
+  "updated": "2026-11-20T13:51:02+00:00",
+  "updated_date": "2026-11-20",
   "items": [
     {
       "key": "drive_folder",
@@ -27,6 +27,13 @@
   ],
   "client_files": [],
   "pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
@@ -84,6 +91,13 @@
     "base": "BingO1525 - Monthly Account Review"
   },
   "all_pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Monthly Account Review",
+      "kind": "review"
+    },
     {
       "key": "new-to-brand",
       "file": "new-to-brand.html",
