@@ -44,7 +44,9 @@ with the paths.
 
 ## Performance Overview (hub/performance.html)
 
-One row per hub account: last full month vs the month before for Total Sales, Ad Spend, Ad Sales, ACoS, TACoS.
+Opens on **Month to date** (1st of the month through yesterday vs the same days of the month before); a toggle switches the
+table to the last full month vs the month before. Columns: Total Sales, Ad Spend, Ad Sales, ACoS, TACoS.
+The Monthly view of each account also shows the month-to-date row on top.
 Click an account for its Weekly (last 24 weeks) / Monthly (last 24 months) / Annual table, with CSV downloads.
 Same AM / PPC / status filters as the Account Hubs page.
 
@@ -54,7 +56,10 @@ Source: MerchantSpring (what clients see), US marketplace (UK for Nature Blends)
    - Seller Central: `getSalesByPeriod`, includeTax=false, interval `w` (23 weeks + previousPeriod) and `M` (12 months + same 12 a year earlier)
    - Vendor Central: `getVendorSalesByPeriod` (orderedRevenue), same windows; `getSalesByPeriod` does not return ordered revenue for vendors
    - Save `{"currency", "rows": [{startTime, endTime, sales, priorSales, adSpend, priorAdSpend, adSales, priorAdSales}]}` as `<channelId>_W.json` / `<channelId>_M.json` in a folder outside the repo
-2. `python3 tools/build_performance.py --repo . --ms <ms folder> --raw <MAP folder> --data-end <last Saturday>`
+   - Month to date: same tools, interval `d`, from the 1st of the month to yesterday, custom prior = the same days of the month before
+     (interval `M` returns the full prior month, so it can't be used here). Save as `<channelId>_MTD.json`, same format.
+   - Badass Moto (MAP): `ads_mtd.json` / `sp_mtd.json` with `g='D'` and `k` = `cur` / `prior` for the same two windows
+2. `python3 tools/build_performance.py --repo . --ms <ms folder> --raw <MAP folder> --data-end <last Saturday> --mtd-end <yesterday>`
 3. New account: add its MerchantSpring channelId to `MS_CHANNELS`.
 
 ## Monthly run (10th of each month)
