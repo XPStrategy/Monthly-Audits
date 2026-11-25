@@ -3,8 +3,8 @@
   "client": "advanced-bionutritionals",
   "slug": "advanced-bionutritionals-77c9bffa",
   "marketplace": "US",
-  "updated": "2026-10-29T12:26:50+00:00",
-  "updated_date": "2026-10-29",
+  "updated": "2026-11-25T15:22:26+00:00",
+  "updated_date": "2026-11-25",
   "items": [
     {
       "key": "drive_folder",
@@ -27,6 +27,13 @@
   ],
   "client_files": [],
   "pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Run Nov 25, 2026 \u00b7 L30 Oct 24 \u2013 Nov 22",
+      "kind": "review"
+    },
     {
       "key": "2026-10",
       "file": "2026-10.html",
@@ -70,6 +77,13 @@
     "base": "Advanced Bionutritionals - Monthly Account Review"
   },
   "all_pages": [
+    {
+      "key": "2026-11",
+      "file": "2026-11.html",
+      "label": "November 2026",
+      "note": "Run Nov 25, 2026 \u00b7 L30 Oct 24 \u2013 Nov 22",
+      "kind": "review"
+    },
     {
       "key": "2026-10",
       "file": "2026-10.html",
