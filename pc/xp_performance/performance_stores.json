@@ -1,0 +1,175 @@
+{
+ "_note": "MerchantSpring stores pulled for hub/performance.html. Vendor stores use getVendorSalesByPeriod (orderedRevenue); seller stores use getSalesByPeriod (includeTax=false). Client mapping lives in MS_CHANNELS in tools/build_performance.py. 106902004 (BohemiaSkin) currently returns 400 Invalid channelId.",
+ "stores": [
+  {
+   "channelId": "94801626",
+   "merchantId": "A3VGRJ3VPH51V1 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "42580271",
+   "merchantId": "A3GILW1PEAW8N1 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "106902004",
+   "merchantId": "A1RVO24UZSR7OP @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "20313310",
+   "merchantId": "A2OWYI9FEAGEZI @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13585440",
+   "merchantId": "A3SFRTQB8BHJ17 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "93574878",
+   "merchantId": "A39OX4UU50EIE8 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "48122808",
+   "merchantId": "AJMBRIE7I40TE @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "16035967",
+   "merchantId": "amzn1.vg.389640 @ ATVPDKIKX0DER",
+   "type": "vendor"
+  },
+  {
+   "channelId": "117718061",
+   "merchantId": "AQ57VMFC9WZYL @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13427311",
+   "merchantId": "A18JPPFXUL05RJ @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13145540",
+   "merchantId": "A2RRC0BVAFAEHN @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "107106228",
+   "merchantId": "amzn1.vg.236370 @ ATVPDKIKX0DER",
+   "type": "vendor"
+  },
+  {
+   "channelId": "105122631",
+   "merchantId": "AI71EK5MA6SD9 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "102432899",
+   "merchantId": "A23O7XHKYF1R8P @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13467156",
+   "merchantId": "A2DBOQ9PWF2U4N @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "95420482",
+   "merchantId": "A2DLCH05BQ1VJ1 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "81889729",
+   "merchantId": "A15QG952ZZVDBL @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "47349140",
+   "merchantId": "A3UACI1DKLHUO0 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13428328",
+   "merchantId": "A1IOF3UMEVY9VT @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "31389730",
+   "merchantId": "A3S4R8MPIT5AJ @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "101314217",
+   "merchantId": "A3OEHKBKBLOD9V @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "118288902",
+   "merchantId": "A2GGXJNHW40BL1 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "13419844",
+   "merchantId": "A3JLQNJVE1SB87 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "38104006",
+   "merchantId": "amzn1.vg.947180 @ ATVPDKIKX0DER",
+   "type": "vendor"
+  },
+  {
+   "channelId": "114883607",
+   "merchantId": "A1ULD1V62BBF6C @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "66964067",
+   "merchantId": "A38SDJOMY6LDYZ @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "67364816",
+   "merchantId": "amzn1.vg.7401811 @ ATVPDKIKX0DER",
+   "type": "vendor"
+  },
+  {
+   "channelId": "99754043",
+   "merchantId": "A19Y1DT1NHRAG5 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "51216696",
+   "merchantId": "A1O6WAP79ZJFZ9 @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "87238171",
+   "merchantId": "A14YZW201P5O4W @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "105539804",
+   "merchantId": "A2SBE5ZCFFA82Z @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "100722276",
+   "merchantId": "A28ZTIM37FTWLR @ A1F83G8C2ARO7P",
+   "type": "seller"
+  },
+  {
+   "channelId": "118847691",
+   "merchantId": "A10QF9OYFMSYRO @ ATVPDKIKX0DER",
+   "type": "seller"
+  },
+  {
+   "channelId": "118710086",
+   "merchantId": "A2CDQHKWKCD9Z @ ATVPDKIKX0DER",
+   "type": "seller"
+  }
+ ]
+}

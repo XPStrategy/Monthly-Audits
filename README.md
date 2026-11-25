@@ -52,6 +52,23 @@ Same AM / PPC / status filters as the Account Hubs page.
 
 Source: MerchantSpring (what clients see), US marketplace (UK for Nature Blends). Badass Moto is not in MerchantSpring and falls back to MAP.
 
+**Weekly run (no Claude tokens for the pull).** The XP PC pulls MerchantSpring through its API every Tuesday 6:00
+(`pc/xp_performance/`, installed at `C:\XP\xp_performance`, same pattern as `xp_change_audit` and `xp_budget_bot`);
+the publish step only builds, checks and pushes:
+
+1. PC: `run_performance.ps1` (Task Scheduler) writes `output\<run date>\` and `perf_bundle_<run date>.zip`:
+   `ms\<channelId>_W/_M/_MTD.json`, `manifest.json` (dates, per-store status), `check_month.json` / `check_mtd.json`
+   (MerchantSpring's own per-store totals for reconciliation), `pull.log`.
+2. Publish: `python3 tools/publish_performance.py --repo . --bundle <run folder or zip> [--raw <Badass Moto MAP folder>]`.
+   Exit 0 = commit `hub/performance.html` and `hub/index.html` and push; exit 1 = do not publish, reasons printed.
+3. Badass Moto is not in MerchantSpring: until it is, its 6 small MAP queries (below) go in `--raw`, or it shows as not connected.
+
+PC setup (once): copy `pc/xp_performance` to `C:\XP\xp_performance`; `pip install tzdata`; set the key
+(`[Environment]::SetEnvironmentVariable("MS_API_KEY", "<key>", "User")`, MerchantSpring > Settings > API, Owner/Admin only);
+`run_performance.ps1 -Check`; then `register_task.ps1`. Keep `performance_stores.json` there in sync with `tools/`.
+
+Reference, what the pull does (same calls as the MerchantSpring connector; one call at a time, parallel calls time out):
+
 1. Per store (channel list in `MS_CHANNELS` in `tools/build_performance.py`), one call at a time (parallel calls time out):
    - Seller Central: `getSalesByPeriod`, includeTax=false, interval `w` (23 weeks + previousPeriod) and `M` (12 months + same 12 a year earlier)
    - Vendor Central: `getVendorSalesByPeriod` (orderedRevenue), same windows; `getSalesByPeriod` does not return ordered revenue for vendors

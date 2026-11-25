@@ -1,0 +1,12 @@
+{
+  "_note": "Copy to config.json. Leave api_key empty and set the MS_API_KEY environment variable instead (preferred). Never commit config.json.",
+  "api_key": "",
+  "timezone": "America/Los_Angeles",
+  "api_timezone": "America/Los_Angeles",
+  "stores_file": "performance_stores.json",
+  "output_dir": "output",
+  "pause_seconds": 2,
+  "retry_wait_seconds": 30,
+  "tries": 3,
+  "try_once": ["106902004"]
+}
