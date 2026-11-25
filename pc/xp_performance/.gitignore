@@ -1,4 +1,6 @@
 config.json
+config_ads.json
 output/
+history/
 logs/
 __pycache__/

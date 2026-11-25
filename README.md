@@ -52,7 +52,15 @@ Same AM / PPC / status filters as the Account Hubs page.
 
 Source: MerchantSpring (what clients see), US marketplace (UK for Nature Blends). Badass Moto is not in MerchantSpring and falls back to MAP.
 
-**Weekly run (no Claude tokens for the pull).** The XP PC pulls MerchantSpring through its API every Tuesday 6:00
+**Current setup (decided Nov 25, 2026): ad columns from the Amazon Ads API on the XP PC, Total Sales from MerchantSpring via Claude.**
+`pc/xp_performance/ads_pull.py` (run by `run_ads.ps1`, Task Scheduler Tuesday 6:00) pulls daily Ad Spend / Ad Sales
+(SP + SB + SD, SP 14-day attribution by default) for the last 60 days with the budget bot's API credentials, and keeps
+`history\ads_daily.json` on the PC because Amazon only keeps 60-95 days of report data. Setup: copy `config_ads.example.json`
+to `config_ads.json`, set ADS_CLIENT_ID / ADS_CLIENT_SECRET / ADS_REFRESH_TOKEN, `run_ads.ps1 -Profiles` to fill the
+profile ids, `run_ads.ps1 -Check`, then a full run. Next step: compare its numbers with MerchantSpring's ad columns before
+the page switches over. The MerchantSpring API option below (`perf_pull.py`) stays ready in case XP gets an API key.
+
+**MerchantSpring API option (no Claude tokens for the pull).** The XP PC pulls MerchantSpring through its API every Tuesday 6:00
 (`pc/xp_performance/`, installed at `C:\XP\xp_performance`, same pattern as `xp_change_audit` and `xp_budget_bot`);
 the publish step only builds, checks and pushes:
 
