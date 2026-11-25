@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""XP Strategy - Performance Overview: Amazon Ads API pull for the ad columns (runs on the XP PC, no Claude tokens).
+r"""XP Strategy - Performance Overview: Amazon Ads API pull for the ad columns (runs on the XP PC, no Claude tokens).
 
 Ad Spend and Ad Sales per hub account per day, from the Amazon Ads reporting API (v3), Sponsored Products +
 Sponsored Brands + Sponsored Display, with the same API credentials as xp_budget_bot / xp_change_audit.
@@ -19,8 +19,9 @@ Output (output/<run date>/ads_daily.json and history/ads_daily.json):
         "days": {"2026-11-23": {"sp": 224.41, "asl": 1505.0, "SP": [cost, sales], "SB": [...], "SD": [...]}}}}}
 Accounts that share a hub client (e.g. Ultimate Footwear US + vendor profile) are added together.
 
-Config: config_ads.json (see config_ads.example.json). Secrets from env vars ADS_CLIENT_ID, ADS_CLIENT_SECRET,
-ADS_REFRESH_TOKEN (preferred) or the "lwa" block. Never commit config_ads.json or the output.
+Config: credentials and US accounts are read from the budget bot (C:\XP\xp_budget_bot\config.json: "amazon" block and
+"accounts" name -> profile ids). Optional config_ads.json for settings, extra accounts (UK, accounts not in the bot) and
+"skip_clients". Env vars ADS_CLIENT_ID / ADS_CLIENT_SECRET / ADS_REFRESH_TOKEN override. Never commit the output.
 """
 import argparse, gzip, json, os, sys, time, urllib.error, urllib.parse, urllib.request
 from datetime import date, datetime, timedelta
@@ -39,11 +40,46 @@ PRODUCTS = {
 RETENTION = {"SP": 95, "SB": 60, "SD": 65}
 
 
+# Budget bot account name -> hub client (same map as tools/build_changes.py NAME_TO_CLIENT).
+NAME_TO_CLIENT = {
+    "Advanced Bionutritionals": "advanced-bionutritionals", "Badass Moto": "badass-moto", "Bingo": "bingo1525",
+    "Cosmo": "cosmo-technologies", "DEZINE": "dzg-products", "Displate": "displate", "Inglesina": "inglesina",
+    "Joe's Trends": "joes-trend", "Kensington": "kensingtonvalleytrading", "Kitchen Globe": "boroux",
+    "Leading Choice": "leading-choice-products", "Nutrivein": "nutrivein", "Reliable Home": "md-buildingproducts",
+    "SavonGoods": "savongoods", "Shine Water": "shinewater", "SkySail": "skysailconsumer",
+    "Smart Cookie": "smart-cookie", "Spring Mount": "spring-mount-supply", "Steam Clip": "steam-clip",
+    "TrailHeads": "trailheads-apparel", "TurmSkin": "turmskin", "Ultimate Footwear": "ultimate-footwear",
+    "Ultimate Washer": "ultimate-washer", "VersaGroup": "versa-group",
+}
+DEFAULT_BOT_CONFIG = r"C:\XP\xp_budget_bot\config.json"
+
+
 def load_config():
+    """Credentials and US accounts come from the budget bot's config.json (nothing copied, nothing stored twice).
+    config_ads.json is optional: settings, extra accounts not in the budget bot (e.g. UK), or "skip"."""
     p = os.path.join(HERE, "config_ads.json")
-    if not os.path.exists(p):
-        sys.exit("Missing config_ads.json: copy config_ads.example.json and fill in the accounts (python ads_pull.py --profiles lists them)")
-    cfg = json.load(open(p, encoding="utf-8"))
+    cfg = json.load(open(p, encoding="utf-8")) if os.path.exists(p) else {}
+    extra = cfg.get("accounts", [])
+    bot_path = cfg.get("budget_bot_config", DEFAULT_BOT_CONFIG)
+    bot = json.load(open(bot_path, encoding="utf-8")) if os.path.exists(bot_path) else {}
+    if bot:
+        am = bot.get("amazon", {})
+        cfg.setdefault("lwa", {k: am.get(k) for k in ("client_id", "client_secret", "refresh_token")})
+        accts = []
+        for name, ids in bot.get("accounts", {}).items():
+            client = NAME_TO_CLIENT.get(name)
+            if not client:
+                print(f"note: budget bot account {name!r} has no hub client mapping; skipped")
+                continue
+            for pid in (ids if isinstance(ids, list) else [ids]):
+                accts.append({"name": name, "client": client, "profile_id": str(pid),
+                              "region": am.get("region", "NA"), "currency": "USD"})
+        have = {a["profile_id"] for a in accts}
+        cfg["accounts"] = accts + [a for a in extra if str(a.get("profile_id")) not in have]
+    elif not extra:
+        sys.exit(f"No budget bot config at {bot_path} and no accounts in config_ads.json")
+    skip = set(cfg.get("skip_clients", []))
+    cfg["accounts"] = [a for a in cfg["accounts"] if a["client"] not in skip]
     lwa = cfg.get("lwa", {})
     cfg["client_id"] = os.environ.get("ADS_CLIENT_ID") or lwa.get("client_id")
     cfg["client_secret"] = os.environ.get("ADS_CLIENT_SECRET") or lwa.get("client_secret")

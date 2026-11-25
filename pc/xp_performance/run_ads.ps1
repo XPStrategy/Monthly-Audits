@@ -12,6 +12,7 @@ Set-Location $here
 New-Item -ItemType Directory -Force -Path "$here\logs" | Out-Null
 $log = "$here\logs\ads_$(Get-Date -Format yyyy-MM-dd_HHmm).log"
 
+# Optional overrides; normally the credentials come from the budget bot config.
 foreach ($v in "ADS_CLIENT_ID", "ADS_CLIENT_SECRET", "ADS_REFRESH_TOKEN") {
   if (-not (Get-Item "env:$v" -ErrorAction SilentlyContinue)) {
     $u = [Environment]::GetEnvironmentVariable($v, "User"); if ($u) { Set-Item "env:$v" $u }
