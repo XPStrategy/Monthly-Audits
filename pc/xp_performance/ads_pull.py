@@ -62,9 +62,8 @@ def load_config():
     extra = cfg.get("accounts", [])
     bot_path = cfg.get("budget_bot_config", DEFAULT_BOT_CONFIG)
     bot = json.load(open(bot_path, encoding="utf-8")) if os.path.exists(bot_path) else {}
+    am = bot.get("amazon", {})
     if bot:
-        am = bot.get("amazon", {})
-        cfg.setdefault("lwa", {k: am.get(k) for k in ("client_id", "client_secret", "refresh_token")})
         accts = []
         for name, ids in bot.get("accounts", {}).items():
             client = NAME_TO_CLIENT.get(name)
@@ -80,13 +79,14 @@ def load_config():
         sys.exit(f"No budget bot config at {bot_path} and no accounts in config_ads.json")
     skip = set(cfg.get("skip_clients", []))
     cfg["accounts"] = [a for a in cfg["accounts"] if a["client"] not in skip]
-    lwa = cfg.get("lwa", {})
-    cfg["client_id"] = os.environ.get("ADS_CLIENT_ID") or lwa.get("client_id")
-    cfg["client_secret"] = os.environ.get("ADS_CLIENT_SECRET") or lwa.get("client_secret")
-    cfg["refresh_token"] = os.environ.get("ADS_REFRESH_TOKEN") or lwa.get("refresh_token")
+    lwa = cfg.get("lwa") or {}
+    for k, env in (("client_id", "ADS_CLIENT_ID"), ("client_secret", "ADS_CLIENT_SECRET"), ("refresh_token", "ADS_REFRESH_TOKEN")):
+        cfg[k] = os.environ.get(env) or lwa.get(k) or am.get(k)   # env var, then config_ads.json, then the budget bot
     if not all((cfg["client_id"], cfg["client_secret"], cfg["refresh_token"])):
-        sys.exit("Missing Amazon Ads API credentials: set ADS_CLIENT_ID / ADS_CLIENT_SECRET / ADS_REFRESH_TOKEN "
-                 "(the same values xp_budget_bot uses) or fill the lwa block in config_ads.json")
+        sys.exit(f"Missing Amazon Ads API credentials. Budget bot config {'found' if bot else 'NOT found'} at {bot_path}"
+                 f"{' but its amazon block is incomplete' if bot else ''}. Fix the path with \"budget_bot_config\" in config_ads.json.")
+    print(f"Credentials: {'budget bot config ' + bot_path if bot and not lwa.get('client_id') else 'config_ads.json / environment'}; "
+          f"{len(cfg['accounts'])} account profiles")
     cfg.setdefault("timezone", "America/Los_Angeles")
     cfg.setdefault("attribution", "14d")          # SP sales window; SB / SD always report 14-day sales
     cfg.setdefault("lookback_days", 60)
