@@ -165,9 +165,12 @@ def create_report(api, acct, prod, start, end, attribution):
     return None, f"HTTP {code}: {str(r)[:200]}"
 
 
-def wait_report(api, acct, rid, deadline, poll):
+def wait_report(api, acct, rid, deadline, poll, verbose=False):
+    t0 = time.time()
     while time.time() < deadline:
         code, r = api.req("GET", HOSTS[acct.get("region", "NA")] + f"/reporting/reports/{rid}", acct["profile_id"])
+        if verbose:
+            print(f"  report {r.get('status') if isinstance(r, dict) else code} after {int(time.time() - t0)}s", flush=True)
         if code == 200 and isinstance(r, dict):
             if r.get("status") == "COMPLETED":
                 return r.get("url"), None
@@ -212,11 +215,12 @@ def main():
 
     if a.check:
         acct = accts[0]
-        print("Token OK" if api.access_token() else "Token failed")
+        print("Token OK" if api.access_token() else "Token failed", flush=True)
         rid, err = create_report(api, acct, "SP", end - timedelta(days=2), end, cfg["attribution"])
         if err:
             sys.exit(f"{acct['name']}: could not create a report: {err}")
-        url, err = wait_report(api, acct, rid, time.time() + 15 * 60, cfg["poll_seconds"])
+        print(f"{acct['name']}: report requested ({rid}); Amazon usually takes 1-10 minutes", flush=True)
+        url, err = wait_report(api, acct, rid, time.time() + 15 * 60, cfg["poll_seconds"], verbose=True)
         if err:
             sys.exit(f"{acct['name']}: {err}")
         rows = download(url)

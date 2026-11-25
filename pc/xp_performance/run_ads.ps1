@@ -21,7 +21,7 @@ foreach ($v in "ADS_CLIENT_ID", "ADS_CLIENT_SECRET", "ADS_REFRESH_TOKEN") {
 
 $exe = "python"; $pyArgs = @()
 if (Get-Command py -ErrorAction SilentlyContinue) { $exe = "py"; $pyArgs += "-3" }
-$pyArgs += "ads_pull.py"
+$pyArgs += @("-u", "ads_pull.py")   # -u: print progress as it happens (output is piped to the log)
 if ($Profiles) { $pyArgs += "--profiles" }
 if ($Check)    { $pyArgs += "--check" }
 if ($Only)     { $pyArgs += @("--only", $Only) }

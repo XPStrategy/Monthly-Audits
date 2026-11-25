@@ -18,7 +18,7 @@ if (-not $env:MS_API_KEY) { $env:MS_API_KEY = [Environment]::GetEnvironmentVaria
 $py = (Get-Command py -ErrorAction SilentlyContinue)
 $pyArgs = @()
 if ($py) { $exe = "py"; $pyArgs += "-3" } else { $exe = "python" }
-$pyArgs += "perf_pull.py"
+$pyArgs += @("-u", "perf_pull.py")
 if ($Check) { $pyArgs += "--check" }
 if ($Only)  { $pyArgs += @("--only", $Only) }
 if ($Today) { $pyArgs += @("--today", $Today) }
