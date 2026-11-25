@@ -506,7 +506,7 @@ def page(rows, data_end, today, mtd=None):
 </style></head><body>
 {H.hero_html("Performance Overview", P.logo_b64(), "US", today, hero)}
 <main>
-<div class="tabs-top"><a href="./">Account Hubs</a><a class="on" href="performance.html">Performance Overview</a></div>
+<div class="tabs-top"><a href="./">Account Hubs</a><a class="on" href="performance.html">Performance Overview</a><a href="changes.html">Weekly Changes</a></div>
 <div class="h2row"><div><h2 id="ttl">Performance Overview &middot; {mlab(month)} vs {mlab(prev)}</h2>
 <div class="upd">Last updated {date.fromisoformat(today).strftime("%b %-d, %Y")} &middot; data through {data_end.strftime("%b %-d, %Y")} &middot; weekly view through week of {(data_end - timedelta(days=6)).strftime("%b %-d")}{(" &middot; month to date through " + date.fromisoformat(mtd["end"]).strftime("%b %-d")) if mtd else ""}</div></div><button class="dl" id="dl-all" title="Accounts currently shown, with the filters applied">Download CSV</button></div>
 {('<div class="seg" id="view" style="margin:0 0 12px"><button data-v="mtd">Month to date</button><button data-v="month">Last full month &middot; ' + mlab(month) + '</button></div>') if mtd else '<div id="view"></div>'}

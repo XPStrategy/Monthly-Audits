@@ -109,7 +109,7 @@ tr.inactive td {{ opacity: .6; }}
 </style></head><body>
 {H.hero_html("Account Hubs", P.logo_b64(), "US", today, None)}
 <main>
-<div class="tabs-top"><a class="on" href="./">Account Hubs</a><a href="performance.html">Performance Overview</a></div>
+<div class="tabs-top"><a class="on" href="./">Account Hubs</a><a href="performance.html">Performance Overview</a><a href="changes.html">Weekly Changes</a></div>
 <h2>Account Hubs</h2>
 <div class="tools">
   <select id="pick" aria-label="Open an account hub"><option value="">Open an account hub…</option>{opts}</select>

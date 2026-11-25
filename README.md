@@ -79,3 +79,18 @@ pricing or credentials in a page or `links.json`. Raw MAP data stays in Drive.
 ## One-time setup
 
 Settings → Pages → Source: Deploy from a branch, `main`, `/ (root)`. Needs a repo admin (CEO).
+
+## Weekly Changes (hub/changes.html)
+
+Password-protected page (for Tim and Abe): every account's Sponsored Products and Sponsored Brands changes over the
+last 30 days, grouped into work sessions (no gap over 30 minutes; Bulk / tool = 50+ changes at 10+ per minute,
+otherwise Hand edits). Click an account for its daily chart and session list, with CSV and print/PDF downloads.
+Same AM / PPC / status filters as the Account Hubs page.
+
+Source: Amazon Ads Change History API, pulled on the XP PC by `C:\XP\xp_change_audit\change_audit.py` (read-only,
+same API credentials as the budget bot). Amazon's automatic out-of-budget toggles are left out; budget rules are
+counted separately. Amazon does not record which user made a change.
+
+- Data: `hub/changes-data.json`, an AES-256-GCM blob the page decrypts in the browser. Never commit unencrypted data.
+- Weekly refresh: run the script, copy `output\changes-data.json` into `hub/`, commit and push. The page does not change.
+- Page shell, filters and the budget-bot-name → hub-account map: `python3 tools/build_changes.py --repo .`
