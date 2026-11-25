@@ -104,7 +104,7 @@ function stats(t, a){
   r.s7 = ss.filter(function(x){ return x.d >= WK; }).length; r.sAll = ss.length;
   r.bulk = ss.filter(function(x){ return x.k === "B"; }).length; r.hand = r.sAll - r.bulk;
   r.active = a.days.length; r.last = a.days.length ? a.days[a.days.length-1].d : null;
-  r.tot = a.days.reduce(function(x,d){ return x+d.n; }, 0);
+  r.tot = a.days.reduce(function(x,d){ return x+d.n; }, 0); r.c7 = a.days.filter(function(d){ return d.d >= WK; }).reduce(function(x,d){ return x+d.n; }, 0);
   r.flag = r.s7 === 0 ? ["bad","No work in 7 days"] : r.active <= 3 ? ["warn","Low activity"] : ["ok","Active"];
   r.ord = {bad:0, warn:1, ok:2}[r.flag[0]];
   return r;
@@ -158,10 +158,10 @@ function render(){
   var rs = shown(), h = "";
   rs.forEach(function(r){ var id = r.t.client, o = !!open[id], v = function(x){ return r.a && !r.a.error ? x : '<span class="na">&ndash;</span>'; };
     h += '<tr class="acc'+(o?" open":"")+'" data-id="'+esc(id)+'"><td><span class="car">&#9656;</span><b>'+esc(r.t.brand)+'</b><div class="who">'+esc([r.t.am ? "AM "+r.t.am : "", r.t.ppc.length ? "PPC "+r.t.ppc.join(", ") : ""].filter(Boolean).join(" \u00b7 "))+'</div></td>'
-      + '<td><span class="stp '+r.flag[0]+'">'+r.flag[1]+'</span></td><td>'+v(r.s7)+'</td><td>'+v(r.sAll)+'</td><td>'+v(r.bulk)+'</td><td>'+v(r.hand)+'</td><td>'+v(r.active)+'</td><td>'+v(r.last ? nice(r.last) : "&ndash;")+'</td><td>'+v((r.tot||0).toLocaleString())+'</td></tr>';
-    if (o) h += '<tr class="det" data-id="'+esc(id)+'"><td colspan="9">'+detail(r)+'</td></tr>';
+      + '<td><span class="stp '+r.flag[0]+'">'+r.flag[1]+'</span></td><td>'+v(r.s7)+'</td><td>'+v(r.sAll)+'</td><td>'+v(r.bulk)+'</td><td>'+v(r.hand)+'</td><td>'+v(r.active)+'</td><td>'+v(r.last ? nice(r.last) : "&ndash;")+'</td><td>'+v((r.c7||0).toLocaleString())+'</td><td>'+v((r.tot||0).toLocaleString())+'</td></tr>';
+    if (o) h += '<tr class="det" data-id="'+esc(id)+'"><td colspan="10">'+detail(r)+'</td></tr>';
   });
-  $("rows").innerHTML = h || '<tr><td colspan="9" class="na">No accounts match the filters.</td></tr>';
+  $("rows").innerHTML = h || '<tr><td colspan="10" class="na">No accounts match the filters.</td></tr>';
   $("count").textContent = rs.length + " account" + (rs.length === 1 ? "" : "s");
   try { localStorage.setItem("xp-hub-f", JSON.stringify({am:$("am").value, ppc:$("ppc").value, st:$("st").value})); } catch (e) {}
 }
@@ -179,9 +179,9 @@ function csvAccount(r){
   save("weekly-changes-"+slug(r.t.brand)+"-"+R.end+".csv", out);
 }
 function csvAll(){
-  var out = [["Account","AM","PPC","Status","Work sessions last 7 days","Work sessions "+DATES.length+" days","Bulk / tool sessions","Hand-edit sessions","Active days","Last change","Changes "+DATES.length+" days"]];
+  var out = [["Account","AM","PPC","Status","Work sessions last 7 days","Work sessions "+DATES.length+" days","Bulk / tool sessions","Hand-edit sessions","Active days","Last change","Changes last 7 days","Changes "+DATES.length+" days"]];
   shown().forEach(function(r){ var ok = r.a && !r.a.error;
-    out.push([r.t.brand, r.t.am, r.t.ppc.join(" / "), r.flag[1], ok?r.s7:"", ok?r.sAll:"", ok?r.bulk:"", ok?r.hand:"", ok?r.active:"", ok&&r.last?r.last:"", ok?r.tot:""]); });
+    out.push([r.t.brand, r.t.am, r.t.ppc.join(" / "), r.flag[1], ok?r.s7:"", ok?r.sAll:"", ok?r.bulk:"", ok?r.hand:"", ok?r.active:"", ok&&r.last?r.last:"", ok?r.c7:"", ok?r.tot:""]); });
   save("weekly-changes-all-accounts-"+R.end+".csv", out);
 }
 
@@ -250,7 +250,7 @@ def page(team_rows, today):
   <input id="q" type="search" placeholder="Filter accounts" aria-label="Filter accounts">
   <span class="count" id="count"></span>
 </div>
-<div class="wrap"><table><thead><tr><th>Account &middot; click for the full timeline</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Bulk / tool</th><th>Hand edits</th><th>Active days</th><th>Last change</th><th>Changes, 30 days</th></tr></thead>
+<div class="wrap"><table><thead><tr><th>Account &middot; click for the full timeline</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Bulk / tool</th><th>Hand edits</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th></tr></thead>
 <tbody id="rows"></tbody></table></div>
 <p class="notes">A work session is a run of changes with no gap longer than 30 minutes. Bulk / tool = 50+ changes at 10+ per minute (a bulk file or an outside tool); hand edits = everything slower.
 One bulk upload can create thousands of changes, so read sessions and active days before the change count. Status: red = no work session in the last 7 days, amber = 3 active days or fewer in 30 days.
