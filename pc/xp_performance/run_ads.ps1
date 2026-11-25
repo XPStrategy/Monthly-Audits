@@ -4,7 +4,7 @@
 #   powershell -ExecutionPolicy Bypass -File C:\XP\xp_performance\run_ads.ps1 -Check      # token + one small report
 #   powershell -ExecutionPolicy Bypass -File C:\XP\xp_performance\run_ads.ps1             # full pull
 # Output: output\<run date>\ads_daily.json (+ log), history\ads_daily.json, output\ads_bundle_<run date>.zip
-param([switch]$Profiles, [switch]$Check, [string]$Only = "", [int]$Days = 0, [string]$Today = "")
+param([switch]$Profiles, [switch]$Check, [string]$Status = "", [string]$Only = "", [int]$Days = 0, [string]$Today = "")
 
 $ErrorActionPreference = "Stop"
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -24,13 +24,14 @@ if (Get-Command py -ErrorAction SilentlyContinue) { $exe = "py"; $pyArgs += "-3"
 $pyArgs += @("-u", "ads_pull.py")   # -u: print progress as it happens (output is piped to the log)
 if ($Profiles) { $pyArgs += "--profiles" }
 if ($Check)    { $pyArgs += "--check" }
+if ($Status)   { $pyArgs += @("--status", $Status) }
 if ($Only)     { $pyArgs += @("--only", $Only) }
 if ($Days)     { $pyArgs += @("--days", $Days) }
 if ($Today)    { $pyArgs += @("--today", $Today) }
 
 & $exe @pyArgs 2>&1 | Tee-Object -FilePath $log
 $code = $LASTEXITCODE
-if ($Profiles -or $Check) { exit $code }
+if ($Profiles -or $Check -or $Status) { exit $code }
 
 $run = Get-ChildItem "$here\output" -Directory | Sort-Object Name -Descending | Select-Object -First 1
 if ($run -and (Test-Path "$($run.FullName)\ads_daily.json")) {

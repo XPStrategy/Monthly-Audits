@@ -3,5 +3,5 @@
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 $action  = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$here\run_ads.ps1`"" -WorkingDirectory $here
 $trigger = New-ScheduledTaskTrigger -Weekly -DaysOfWeek Tuesday -At 6:00am
-$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 2)
+$settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -ExecutionTimeLimit (New-TimeSpan -Hours 3)
 Register-ScheduledTask -TaskName "XP Performance Overview ads pull" -Action $action -Trigger $trigger -Settings $settings -Description "Amazon Ads API pull (ad columns) for hub/performance.html" -Force

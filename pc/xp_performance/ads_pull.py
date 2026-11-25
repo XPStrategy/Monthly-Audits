@@ -92,7 +92,7 @@ def load_config():
     cfg.setdefault("lookback_days", 60)
     cfg.setdefault("products", ["SP", "SB", "SD"])
     cfg.setdefault("poll_seconds", 20)
-    cfg.setdefault("max_wait_minutes", 45)
+    cfg.setdefault("max_wait_minutes", 120)        # Amazon v3 reports can sit in PENDING for a long time
     return cfg
 
 
@@ -166,11 +166,13 @@ def create_report(api, acct, prod, start, end, attribution):
 
 
 def wait_report(api, acct, rid, deadline, poll, verbose=False):
-    t0 = time.time()
+    t0, last = time.time(), (None, -1)
     while time.time() < deadline:
         code, r = api.req("GET", HOSTS[acct.get("region", "NA")] + f"/reporting/reports/{rid}", acct["profile_id"])
-        if verbose:
-            print(f"  report {r.get('status') if isinstance(r, dict) else code} after {int(time.time() - t0)}s", flush=True)
+        st = r.get("status") if isinstance(r, dict) else code
+        mins = int((time.time() - t0) // 60)
+        if verbose and (st != last[0] or mins // 5 != last[1]):     # on a status change and every 5 minutes
+            print(f"  report {st} after {mins} min", flush=True); last = (st, mins // 5)
         if code == 200 and isinstance(r, dict):
             if r.get("status") == "COMPLETED":
                 return r.get("url"), None
@@ -200,6 +202,7 @@ def main():
     ap.add_argument("--only", help="comma-separated hub clients")
     ap.add_argument("--days", type=int, help="override lookback_days")
     ap.add_argument("--today", help="run date yyyy-mm-dd (default today, page time zone)")
+    ap.add_argument("--status", help="report id from -Check: print its status (and totals when it is done)")
     a = ap.parse_args()
     cfg = load_config()
     api = Api(cfg)
@@ -209,6 +212,14 @@ def main():
     today = date.fromisoformat(a.today) if a.today else datetime.now(ZoneInfo(cfg["timezone"])).date()
     end = today - timedelta(days=1)
     accts = [x for x in cfg["accounts"] if x.get("profile_id") and not x.get("skip")]
+    if a.status:
+        acct = accts[0]
+        code, r = api.req("GET", HOSTS[acct.get("region", "NA")] + f"/reporting/reports/{a.status}", acct["profile_id"])
+        print(f"HTTP {code}:", json.dumps(r)[:600] if not isinstance(r, str) else r[:600])
+        if code == 200 and isinstance(r, dict) and r.get("status") == "COMPLETED":
+            rows = download(r["url"]); sc = PRODUCTS["SP"]["sales"][cfg["attribution"]]
+            print(f"{len(rows)} campaign-days, cost {sum(x.get('cost') or 0 for x in rows):,.2f}, sales {sum(x.get(sc) or 0 for x in rows):,.2f}")
+        return
     if a.only:
         keep = set(a.only.split(","))
         accts = [x for x in accts if x["client"] in keep]
@@ -219,8 +230,9 @@ def main():
         rid, err = create_report(api, acct, "SP", end - timedelta(days=2), end, cfg["attribution"])
         if err:
             sys.exit(f"{acct['name']}: could not create a report: {err}")
-        print(f"{acct['name']}: report requested ({rid}); Amazon usually takes 1-10 minutes", flush=True)
-        url, err = wait_report(api, acct, rid, time.time() + 15 * 60, cfg["poll_seconds"], verbose=True)
+        print(f"{acct['name']}: report requested ({rid}, profile {acct['profile_id']}); Amazon can take from a few minutes to over an hour. "
+              f"If you stop this, check it later with: run_ads.ps1 -Status {rid}", flush=True)
+        url, err = wait_report(api, acct, rid, time.time() + cfg["max_wait_minutes"] * 60, cfg["poll_seconds"], verbose=True)
         if err:
             sys.exit(f"{acct['name']}: {err}")
         rows = download(url)
