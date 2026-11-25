@@ -52,14 +52,25 @@ Same AM / PPC / status filters as the Account Hubs page.
 
 Source: MerchantSpring (what clients see), US marketplace (UK for Nature Blends). Badass Moto is not in MerchantSpring and falls back to MAP.
 
-**Current setup (decided Nov 25, 2026): ad columns from the Amazon Ads API on the XP PC, Total Sales from MerchantSpring via Claude.**
-`pc/xp_performance/ads_pull.py` (run by `run_ads.ps1`, Task Scheduler Tuesday 6:00) pulls daily Ad Spend / Ad Sales
-(SP + SB + SD, SP 14-day attribution by default) for the last 60 days with the budget bot's API credentials, and keeps
-`history\ads_daily.json` on the PC because Amazon only keeps 60-95 days of report data. Credentials and the 23 US
-accounts are read from `C:\XP\xp_budget_bot\config.json` (nothing copied); `config_ads.json` is optional, for accounts the
-budget bot does not have (BingO, Altun, Sidekick, Nature Blends UK) and settings. Test: `run_ads.ps1 -Check`, then
-`run_ads.ps1 -Only boroux`, then a full run. Next step: compare its numbers with MerchantSpring's ad columns before
-the page switches over. The MerchantSpring API option below (`perf_pull.py`) stays ready in case XP gets an API key.
+**Current setup (from Dec 1, 2026): weekly refresh that keeps the page's history and updates only what changed.**
+`tools/refresh_performance.py` reads the data already on `hub/performance.html` and rewrites only the last two full
+weeks, the last full month and the month before, and month to date (plus its prior). Everything older stays as published.
+
+1. PC, Tuesday 5:00 (Task Scheduler "XP Performance Overview ads pull", `pc/xp_performance/run_ads.ps1`): Amazon Ads API
+   daily Ad Spend / Ad Sales (SP + SB + SD, SP attribution set in `config_ads.json`, currently 7d) for every account in
+   the budget bot config plus `config_ads.json` extras, merged into `C:\XP\xp_performance\history\ads_daily.json`.
+   No Ads API profile: BingO1525, Sidekick/TrainedTo US, Nature Blends UK; Altun has only Zesty Snackz.
+2. Claude, Tuesday 6:40 ET (scheduled task tied to the XP PC): stages `history\ads_daily.json`, runs
+   `refresh_performance.py --plan` for the date windows and the stores that need MerchantSpring per-store calls, makes
+   3 `getSalesByChannels` calls (Total Sales for every store: last week, last full month, month to date, each with its
+   prior) and 3 small `getSalesByPeriod` calls per store the PC does not cover (sales and ads), then
+   `refresh_performance.py` builds and checks the page. Exit 0 = commit and push; exit 1 = do not publish.
+3. Badass Moto stays on MAP (`--raw`, g W / M / D rows for the same windows).
+
+An ad value comes from the PC only when every day of that period is in `ads_daily.json`; otherwise the page keeps
+its value. Weeks and months that change source are listed as NOTE lines when PC spend differs from the page by more
+than 2%. The full rebuild below (`build_performance.py` from 24 weeks / 24 months of MerchantSpring files) still works
+if the page ever needs to be rebuilt from scratch.
 
 **MerchantSpring API option (no Claude tokens for the pull).** The XP PC pulls MerchantSpring through its API every Tuesday 6:00
 (`pc/xp_performance/`, installed at `C:\XP\xp_performance`, same pattern as `xp_change_audit` and `xp_budget_bot`);

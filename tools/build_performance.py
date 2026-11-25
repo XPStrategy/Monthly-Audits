@@ -215,6 +215,32 @@ def load_ms(msdir):
     return out
 
 
+def annual(Mo):
+    """Annual rows from the monthly rows: full years, plus the current year to date vs the same months a year earlier."""
+    Y = []
+    last = Mo[-1]["k"] if Mo else None
+    for y in sorted({r["k"][:4] for r in Mo}):
+        ms = [r for r in Mo if r["k"][:4] == y]
+        if len(ms) < 12 and y != last[:4]:
+            continue                               # partial year at the start of the 24-month window: skip
+        tot = lambda f: (round(sum(r[f] for r in ms if r[f] is not None), 2) if any(r[f] is not None for r in ms) else None)
+        ts, sp, asl = tot("ts"), tot("sp"), tot("asl")
+        row = {"k": y, "ts": ts, "sp": sp, "asl": asl, "acos": (sp / asl) if sp is not None and asl else None,
+               "tacos": (sp / ts) if sp is not None and ts else None, "pa": False, "pt": False,
+               "months": [ms[0]["k"], ms[-1]["k"]], "full": len(ms) == 12}
+        if not row["full"]:                        # YTD vs the same months of the year before
+            upto = ms[-1]["k"][5:]
+            pm = [r for r in Mo if r["k"][:4] == str(int(y) - 1) and r["k"][5:] <= upto]
+            if pm:
+                pts = sum(r["ts"] or 0 for r in pm); psp = sum(r["sp"] or 0 for r in pm) if sp is not None else None
+                pas = sum(r["asl"] or 0 for r in pm) if sp is not None else None
+                row["cmp"] = {"k": str(int(y) - 1), "ts": pts or None, "sp": psp, "asl": pas,
+                              "acos": (psp / pas) if psp is not None and pas else None,
+                              "tacos": (psp / pts) if psp is not None and pts else None}
+        Y.append(row)
+    return Y
+
+
 def ms_series(a):
     """Rows for the page from one MerchantSpring account. Leading periods before the store had data are dropped;
     ads show as missing when the account has no ad spend at all in the window."""
@@ -241,27 +267,7 @@ def ms_series(a):
                 "tacos": (sp / ts) if sp is not None and ts else None, "pa": False, "pt": False}
     D = a.get("D")
     MTD = {"cur": one("MTD", D["cur"]), "prior": one("MTD-prior", D["prior"])} if D else None     # latest 24 weeks / 24 months (+1 so the oldest shown has a % change)
-    Y = []
-    last = Mo[-1]["k"] if Mo else None
-    for y in sorted({r["k"][:4] for r in Mo}):
-        ms = [r for r in Mo if r["k"][:4] == y]
-        if len(ms) < 12 and y != last[:4]:
-            continue                               # partial year at the start of the 24-month window: skip
-        tot = lambda f: (round(sum(r[f] for r in ms if r[f] is not None), 2) if any(r[f] is not None for r in ms) else None)
-        ts, sp, asl = tot("ts"), tot("sp"), tot("asl")
-        row = {"k": y, "ts": ts, "sp": sp, "asl": asl, "acos": (sp / asl) if sp is not None and asl else None,
-               "tacos": (sp / ts) if sp is not None and ts else None, "pa": False, "pt": False,
-               "months": [ms[0]["k"], ms[-1]["k"]], "full": len(ms) == 12}
-        if not row["full"]:                        # YTD vs the same months of the year before
-            upto = ms[-1]["k"][5:]
-            pm = [r for r in Mo if r["k"][:4] == str(int(y) - 1) and r["k"][5:] <= upto]
-            if pm:
-                pts = sum(r["ts"] or 0 for r in pm); psp = sum(r["sp"] or 0 for r in pm) if sp is not None else None
-                pas = sum(r["asl"] or 0 for r in pm) if sp is not None else None
-                row["cmp"] = {"k": str(int(y) - 1), "ts": pts or None, "sp": psp, "asl": pas,
-                              "acos": (psp / pas) if psp is not None and pas else None,
-                              "tacos": (psp / pts) if psp is not None and pts else None}
-        Y.append(row)
+    Y = annual(Mo)
     out = {"W": W, "M": Mo, "Y": Y}
     if MTD:
         out["MTD"] = MTD
