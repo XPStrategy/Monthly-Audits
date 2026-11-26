@@ -50,6 +50,7 @@ CSS = """
 .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color: %(muted)s; margin: 8px 0 12px; }
 .legend span { display:inline-flex; align-items:center; gap:6px; } .sw { width:10px; height:10px; border-radius:2px; display:inline-block; }
 .sess td, .sess th { text-align:left; }
+#rows tr.acc td:first-child { min-width: 190px; }
 .sess td.n, .sess th.n { text-align:right; }
 .sess td.w { white-space: normal; min-width: 260px; }
 .kind { font-size: 11px; font-weight: 600; border-radius: 10px; padding: 1px 7px; background: #e8eef9; color: #3a6fc4; white-space: nowrap; }
@@ -69,8 +70,8 @@ var $ = function(i){ return document.getElementById(i); }, T = window.TEAM, R = 
 var MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"], WD = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 var CATS = [["#2a8c82","New campaigns, ad groups, ads, keywords",["NC","NAG","NAD","NK"]],["#3a6fc4","Bid changes",["BC"]],
   ["#7b5cc4","Budgets, placement, bid strategy",["BU","PL","BS"]],["#c8553d","Pauses and archives",["CP","CA","TP","TA","NA","AP","AA","AGP","AGA"]],
-  ["#c99a2e","Negatives added",["NN"]],["#9aa4b2","Re-enables, renames, other",["CE","TE","AE","AGE","RN","OT"]]];
-var LABEL = {NC:"new campaigns",NAG:"ad groups added",NAD:"ads added",NK:"keywords/targets added",BC:"bid changes",BU:"budget changes",PL:"placement changes",BS:"bid-strategy changes",CP:"campaigns paused",CA:"campaigns archived",CE:"campaigns re-enabled",TP:"targets paused",TA:"targets archived",TE:"targets enabled",NN:"negatives added",NA:"negatives archived",AP:"ads paused",AA:"ads archived",AE:"ads enabled",AGP:"ad groups paused",AGA:"ad groups archived",AGE:"ad groups enabled",RN:"renames",OT:"other changes"};
+  ["#c99a2e","Negatives added",["NN"]],["#9aa4b2","Re-enables, renames, other",["CE","TE","AE","AGE","RN","OT"]],["#cdd5e0","Automated bid changes (hourly / dayparting)",["AU"]]];
+var LABEL = {NC:"new campaigns",NAG:"ad groups added",NAD:"ads added",NK:"keywords/targets added",BC:"bid changes",BU:"budget changes",PL:"placement changes",BS:"bid-strategy changes",CP:"campaigns paused",CA:"campaigns archived",CE:"campaigns re-enabled",TP:"targets paused",TA:"targets archived",TE:"targets enabled",NN:"negatives added",NA:"negatives archived",AP:"ads paused",AA:"ads archived",AE:"ads enabled",AGP:"ad groups paused",AGA:"ad groups archived",AGE:"ad groups enabled",RN:"renames",OT:"other changes",AU:"automated bid changes"};
 function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
 function pd(s){ var a = s.split("-").map(Number); return new Date(a[0], a[1]-1, a[2]); }
 function key(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
@@ -104,7 +105,9 @@ function stats(t, a){
   r.s7 = ss.filter(function(x){ return x.d >= WK; }).length; r.sAll = ss.length;
   r.bulk = ss.filter(function(x){ return x.k === "B"; }).length; r.hand = r.sAll - r.bulk;
   r.active = a.days.length; r.last = a.days.length ? a.days[a.days.length-1].d : null;
-  r.tot = a.days.reduce(function(x,d){ return x+d.n; }, 0); r.c7 = a.days.filter(function(d){ return d.d >= WK; }).reduce(function(x,d){ return x+d.n; }, 0);
+  r.auto = a.days.reduce(function(x,d){ return x+(d.AU||0); }, 0);
+  r.tot = a.days.reduce(function(x,d){ return x+d.n-(d.AU||0); }, 0); r.c7 = a.days.filter(function(d){ return d.d >= WK; }).reduce(function(x,d){ return x+d.n-(d.AU||0); }, 0);
+  r.dp = (a.automation||[]).filter(function(s){ return s.state === "ENABLED" && s.campaigns > 0; }).length > 0;
   r.flag = r.s7 === 0 ? ["bad","No work in 7 days"] : r.active <= 3 ? ["warn","Low activity"] : ["ok","Active"];
   r.ord = {bad:0, warn:1, ok:2}[r.flag[0]];
   return r;
@@ -123,7 +126,7 @@ function strip(a){
     if (day) { var top = y(day.n), cur = Tp+ph, h = cur-top;
       CATS.forEach(function(c){ var v = sum(day, c[2]); if (!v) return; var seg = h*v/day.n; cur -= seg;
         s += '<rect x="'+x+'" y="'+cur+'" width="'+bw+'" height="'+seg+'" fill="'+c[0]+'"><title>'+nice(day.d)+': '+day.n.toLocaleString()+' changes ('+day.h+' ET)</title></rect>'; });
-      s += '<text x="'+(x+bw/2)+'" y="'+(top-4)+'" text-anchor="middle" fill="#18212f" font-size="9">'+fmtK(day.n)+'</text>'; }
+      s += '<text x="'+(x+bw/2)+'" y="'+(top-4)+'" text-anchor="middle" fill="#18212f" font-size="9">'+fmtK(day.n)+(day.x?'*':'')+'</text>'; }
     if (i===0 || (d.getDay()===1 && i>2)) s += '<text x="'+(L+i*step+step/2)+'" y="'+(H-8)+'" text-anchor="middle" fill="#6b7280">'+MON[d.getMonth()]+' '+d.getDate()+'</text>';
   });
   return s+'</svg>';
@@ -134,9 +137,15 @@ function detail(r){
   if (!a) return '<p class="na">This account is not in this pull yet: it is either not in the API account list or not pulled in this run.</p>';
   if (a.error) return '<p class="na">Could not pull this account: '+esc(a.error)+'</p>';
   var t = {}; a.days.forEach(function(d){ Object.keys(d).forEach(function(k){ if (LABEL[k]) t[k] = (t[k]||0)+d[k]; }); });
-  var chips = [[r.tot,"changes"],[t.NC||0,"new campaigns"],[(t.CP||0),"campaigns paused"],[t.CA||0,"archived"],[t.BU||0,"budget changes"],[t.BC||0,"bid changes"],[t.NN||0,"negatives"],[a.budgetRule||0,"budget-rule changes (auto)"]];
+  var chips = [[r.tot,"changes (excl. automated)"],[t.NC||0,"new campaigns"],[t.NK||0,"new keywords / targets"],[t.NN||0,"negatives added"],[t.BU||0,"budget changes"],[t.BC||0,"bid changes (hand / bulk)"],[t.PL||0,"placement changes"],[t.TP||0,"targets paused"],[t.CP||0,"campaigns paused"],[(t.CA||0)+(t.TA||0),"archived"],[t.AU||0,"automated bid changes"],[a.budgetRule||0,"budget-rule changes (Amazon, auto)"]];
   var h = '<div class="det-h"><b>'+esc(r.t.brand)+' &middot; '+nice(R.start)+' &ndash; '+nice(R.end)+'</b><div class="det-r">'
     + '<button class="dl" data-csv="'+esc(r.t.client)+'">Download CSV</button><button class="dl" data-print="'+esc(r.t.client)+'">Print / save PDF</button></div></div>';
+  var dp = (a.automation||[]).map(function(s){ return esc(s.name)+' ('+(s.state==="ENABLED"?"on":"paused")+(s.campaigns?', '+s.campaigns.toLocaleString()+' campaigns':'')+(s.since?', since '+nice(s.since):'')+')'; });
+  var notes = [];
+  if (dp.length) notes.push('<b>Ad Labs dayparting:</b> '+dp.join('; ')+'. Hourly bid changes from it are counted as automated.');
+  if (a.days.some(function(d){ return d.x; })) notes.push('<b>*</b> Heavy day: keyword / target bid changes and new keywords / targets were counted, not itemised.');
+  if (a.missing_days) notes.push(a.missing_days+' day(s) of this window were not pulled yet.');
+  if (notes.length) h += '<p class="na" style="margin:0 0 8px;font-size:12px">'+notes.join(' ')+'</p>';
   h += '<div class="chips">'+chips.map(function(c){ return '<span class="chip"><b>'+c[0].toLocaleString()+'</b>'+c[1]+'</span>'; }).join("")+'</div>';
   h += '<div class="strip">'+strip(a)+'</div><div class="legend">'+CATS.map(function(c){ return '<span><i class="sw" style="background:'+c[0]+'"></i>'+c[1]+'</span>'; }).join("")+'<span>Bar height: changes per day, log scale</span></div>';
   var ss = (a.sessions||[]).slice().reverse();
@@ -158,10 +167,10 @@ function render(){
   var rs = shown(), h = "";
   rs.forEach(function(r){ var id = r.t.client, o = !!open[id], v = function(x){ return r.a && !r.a.error ? x : '<span class="na">&ndash;</span>'; };
     h += '<tr class="acc'+(o?" open":"")+'" data-id="'+esc(id)+'"><td><span class="car">&#9656;</span><b>'+esc(r.t.brand)+'</b><div class="who">'+esc([r.t.am ? "AM "+r.t.am : "", r.t.ppc.length ? "PPC "+r.t.ppc.join(", ") : ""].filter(Boolean).join(" \u00b7 "))+'</div></td>'
-      + '<td><span class="stp '+r.flag[0]+'">'+r.flag[1]+'</span></td><td>'+v(r.s7)+'</td><td>'+v(r.sAll)+'</td><td>'+v(r.bulk)+'</td><td>'+v(r.hand)+'</td><td>'+v(r.active)+'</td><td>'+v(r.last ? nice(r.last) : "&ndash;")+'</td><td>'+v((r.c7||0).toLocaleString())+'</td><td>'+v((r.tot||0).toLocaleString())+'</td></tr>';
-    if (o) h += '<tr class="det" data-id="'+esc(id)+'"><td colspan="10">'+detail(r)+'</td></tr>';
+      + '<td><span class="stp '+r.flag[0]+'">'+r.flag[1]+'</span></td><td>'+v(r.s7)+'</td><td>'+v(r.sAll+'<div class="who">'+r.bulk+' bulk &middot; '+r.hand+' hand</div>')+'</td><td>'+v(r.active)+'</td><td>'+v(r.last ? nice(r.last) : "&ndash;")+'</td><td>'+v((r.c7||0).toLocaleString())+'</td><td>'+v((r.tot||0).toLocaleString())+'</td><td>'+v((r.auto||0).toLocaleString()+(r.dp?' <span class="kind m">dayparting</span>':''))+'</td></tr>';
+    if (o) h += '<tr class="det" data-id="'+esc(id)+'"><td colspan="9">'+detail(r)+'</td></tr>';
   });
-  $("rows").innerHTML = h || '<tr><td colspan="10" class="na">No accounts match the filters.</td></tr>';
+  $("rows").innerHTML = h || '<tr><td colspan="9" class="na">No accounts match the filters.</td></tr>';
   $("count").textContent = rs.length + " account" + (rs.length === 1 ? "" : "s");
   try { localStorage.setItem("xp-hub-f", JSON.stringify({am:$("am").value, ppc:$("ppc").value, st:$("st").value})); } catch (e) {}
 }
@@ -179,9 +188,9 @@ function csvAccount(r){
   save("weekly-changes-"+slug(r.t.brand)+"-"+R.end+".csv", out);
 }
 function csvAll(){
-  var out = [["Account","AM","PPC","Status","Work sessions last 7 days","Work sessions "+DATES.length+" days","Bulk / tool sessions","Hand-edit sessions","Active days","Last change","Changes last 7 days","Changes "+DATES.length+" days"]];
+  var out = [["Account","AM","PPC","Status","Work sessions last 7 days","Work sessions "+DATES.length+" days","Bulk / tool sessions","Hand-edit sessions","Active days","Last change","Changes last 7 days","Changes "+DATES.length+" days","Automated bid changes "+DATES.length+" days"]];
   shown().forEach(function(r){ var ok = r.a && !r.a.error;
-    out.push([r.t.brand, r.t.am, r.t.ppc.join(" / "), r.flag[1], ok?r.s7:"", ok?r.sAll:"", ok?r.bulk:"", ok?r.hand:"", ok?r.active:"", ok&&r.last?r.last:"", ok?r.c7:"", ok?r.tot:""]); });
+    out.push([r.t.brand, r.t.am, r.t.ppc.join(" / "), r.flag[1], ok?r.s7:"", ok?r.sAll:"", ok?r.bulk:"", ok?r.hand:"", ok?r.active:"", ok&&r.last?r.last:"", ok?r.c7:"", ok?r.tot:"", ok?r.auto:""]); });
   save("weekly-changes-all-accounts-"+R.end+".csv", out);
 }
 
@@ -250,11 +259,12 @@ def page(team_rows, today):
   <input id="q" type="search" placeholder="Filter accounts" aria-label="Filter accounts">
   <span class="count" id="count"></span>
 </div>
-<div class="wrap"><table><thead><tr><th>Account &middot; click for the full timeline</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Bulk / tool</th><th>Hand edits</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th></tr></thead>
+<div class="wrap"><table><thead><tr><th>Account &middot; click for the full timeline</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th><th>Automated, 30 days</th></tr></thead>
 <tbody id="rows"></tbody></table></div>
 <p class="notes">A work session is a run of changes with no gap longer than 30 minutes. Bulk / tool = 50+ changes at 10+ per minute (a bulk file or an outside tool); hand edits = everything slower.
 One bulk upload can create thousands of changes, so read sessions and active days before the change count. Status: red = no work session in the last 7 days, amber = 3 active days or fewer in 30 days.
-Left out: Amazon's automatic changes (out-of-budget toggles) and budget rules (shown separately per account). Amazon does not record which user made a change. Sponsored Display is not included.</p>
+Automated = bid changes that repeat hourly on the same campaign (Ad Labs dayparting or another scheduled tool); they have their own column and are left out of sessions and change counts.
+Left out entirely: Amazon's out-of-budget toggles; Amazon budget rules are shown per account. Heavy days (over 2,000 changes) count keyword / target bid changes and new keywords / targets instead of listing each one (marked * on the chart). Amazon does not record which user made a change. Sponsored Display is not included.</p>
 <p class="source" style="font-size:12px;color:{B.MUTED};margin-top:6px">Source: Amazon Ads Change History API (Sponsored Products and Sponsored Brands), pulled every Monday from the XP API connection. AM and PPC from tools/account_team.json.</p>
 </div>
 </main>
