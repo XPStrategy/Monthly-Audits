@@ -126,7 +126,7 @@ function strip(a){
     if (day) { var top = y(day.n), cur = Tp+ph, h = cur-top;
       CATS.forEach(function(c){ var v = sum(day, c[2]); if (!v) return; var seg = h*v/day.n; cur -= seg;
         s += '<rect x="'+x+'" y="'+cur+'" width="'+bw+'" height="'+seg+'" fill="'+c[0]+'"><title>'+nice(day.d)+': '+day.n.toLocaleString()+' changes ('+day.h+' ET)</title></rect>'; });
-      s += '<text x="'+(x+bw/2)+'" y="'+(top-4)+'" text-anchor="middle" fill="#18212f" font-size="9">'+fmtK(day.n)+(day.x?'*':'')+'</text>'; }
+      s += '<text x="'+(x+bw/2)+'" y="'+(top-4)+'" text-anchor="middle" fill="#18212f" font-size="9">'+fmtK(day.n)+(day.cap?'+':'')+(day.x?'*':'')+'</text>'; }
     if (i===0 || (d.getDay()===1 && i>2)) s += '<text x="'+(L+i*step+step/2)+'" y="'+(H-8)+'" text-anchor="middle" fill="#6b7280">'+MON[d.getMonth()]+' '+d.getDate()+'</text>';
   });
   return s+'</svg>';
@@ -143,7 +143,7 @@ function detail(r){
   var dp = (a.automation||[]).map(function(s){ return esc(s.name)+' ('+(s.state==="ENABLED"?"on":"paused")+(s.campaigns?', '+s.campaigns.toLocaleString()+' campaigns':'')+(s.since?', since '+nice(s.since):'')+')'; });
   var notes = [];
   if (dp.length) notes.push('<b>Ad Labs dayparting:</b> '+dp.join('; ')+'. Hourly bid changes from it are counted as automated.');
-  if (a.days.some(function(d){ return d.x; })) notes.push('<b>*</b> Heavy day: keyword / target bid changes and new keywords / targets were counted, not itemised.');
+  if (a.days.some(function(d){ return d.x; })) notes.push('<b>*</b> Heavy day: keyword / target changes were counted, not itemised (a + means Amazon stopped counting at 10,000, so the real number is higher). Campaign, budget, placement, ad group, ad and negative changes are always itemised.');
   if (a.missing_days) notes.push(a.missing_days+' day(s) of this window were not pulled yet.');
   if (notes.length) h += '<p class="na" style="margin:0 0 8px;font-size:12px">'+notes.join(' ')+'</p>';
   h += '<div class="chips">'+chips.map(function(c){ return '<span class="chip"><b>'+c[0].toLocaleString()+'</b>'+c[1]+'</span>'; }).join("")+'</div>';
@@ -264,7 +264,7 @@ def page(team_rows, today):
 <p class="notes">A work session is a run of changes with no gap longer than 30 minutes. Bulk / tool = 50+ changes at 10+ per minute (a bulk file or an outside tool); hand edits = everything slower.
 One bulk upload can create thousands of changes, so read sessions and active days before the change count. Status: red = no work session in the last 7 days, amber = 3 active days or fewer in 30 days.
 Automated = bid changes that repeat hourly on the same campaign (Ad Labs dayparting or another scheduled tool); they have their own column and are left out of sessions and change counts.
-Left out entirely: Amazon's out-of-budget toggles; Amazon budget rules are shown per account. Heavy days (over 2,000 changes) count keyword / target bid changes and new keywords / targets instead of listing each one (marked * on the chart). Amazon does not record which user made a change. Sponsored Display is not included.</p>
+Left out entirely: Amazon's out-of-budget toggles; Amazon budget rules are shown per account. Heavy days (over 2,000 keyword / target changes) count those changes instead of listing each one (marked * on the chart; + = Amazon's 10,000 cap was hit). Campaign, budget, placement, ad group, ad and negative changes are always listed. Amazon does not record which user made a change. Sponsored Display is not included.</p>
 <p class="source" style="font-size:12px;color:{B.MUTED};margin-top:6px">Source: Amazon Ads Change History API (Sponsored Products and Sponsored Brands), pulled every Monday from the XP API connection. AM and PPC from tools/account_team.json.</p>
 </div>
 </main>
