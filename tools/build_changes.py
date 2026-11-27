@@ -99,8 +99,9 @@ async function unlock(blob, pw){
   return JSON.parse(new TextDecoder().decode(pt));
 }
 
-var DATES = [], WK = "";
+var DATES = [], WK = "", PW = "", PERIODS = [{label:"Last 30 days", file:"changes-data.json"}];
 function prep(){
+  DATES = []; open = {};
   var end = pd(R.end), start = pd(R.start);
   for (var d = new Date(start); d <= end; d.setDate(d.getDate()+1)) DATES.push(new Date(d));
   var w = new Date(end); w.setDate(w.getDate()-6); WK = key(w);
@@ -216,18 +217,30 @@ $("rows").addEventListener("click", function(e){
   var id = tr.getAttribute("data-id"); open[id] = !open[id]; render();
 });
 
+function header(){
+  $("upd").textContent = (R.period || "Last 30 days") + ": " + nice(R.start) + " – " + nice(R.end) + " · generated " + R.generated + " · all times US Eastern";
+}
+async function loadPeriod(file){
+  var res = await fetch(file, {cache:"no-store"});
+  if (!res.ok) throw new Error("nodata");
+  R = await unlock(await res.json(), PW);
+  prep(); header();
+}
 async function go(){
   var pw = $("pw").value, err = $("err");
-  err.textContent = "Opening\u2026";
-  try {
-    var res = await fetch("changes-data.json", {cache:"no-store"});
-    if (!res.ok) throw new Error("nodata");
-    var blob = await res.json(); R = await unlock(blob, pw);
-  } catch (e) { err.textContent = e.message === "nodata" ? "No data published yet." : "Wrong password. Try again."; return; }
+  err.textContent = "Opening…";
+  PW = pw;
+  try { await loadPeriod("changes-data.json"); }
+  catch (e) { err.textContent = e.message === "nodata" ? "No data published yet." : "Wrong password. Try again."; return; }
   try { sessionStorage.setItem("xpca", pw); } catch (e) {}
-  prep();
+  try { var pr = await fetch("changes-periods.json", {cache:"no-store"}); if (pr.ok) PERIODS = await pr.json(); } catch (e) {}
+  $("per").innerHTML = PERIODS.map(function(p, i){ return '<option value="'+i+'">'+esc(p.label)+'</option>'; }).join("");
+  $("per").hidden = PERIODS.length < 2;
+  $("per").addEventListener("change", async function(){
+    var p = PERIODS[+$("per").value]; $("upd").textContent = "Loading " + p.label + "…";
+    try { await loadPeriod(p.file); render(); } catch (e) { $("upd").textContent = "Could not load " + p.label + "."; }
+  });
   $("gate").hidden = true; $("app").hidden = false;
-  $("upd").textContent = "Last 30 days: " + nice(R.start) + " \u2013 " + nice(R.end) + " \u00b7 generated " + R.generated + " \u00b7 all times US Eastern";
   try { var f = JSON.parse(localStorage.getItem("xp-hub-f") || "{}"); ["am","ppc","st"].forEach(function(k){ if (f[k] !== undefined) $(k).value = f[k]; }); } catch (e) {}
   ["am","ppc","st"].forEach(function(k){ $(k).addEventListener("change", render); }); $("q").addEventListener("input", render);
   $("dl-all").addEventListener("click", csvAll);
@@ -265,12 +278,12 @@ def page(team_rows, today):
 <div id="app" hidden>
 <div class="h2row"><div><h2>Weekly Changes</h2><div class="upd" id="upd"></div></div><button class="dl" id="dl-all" title="Accounts currently shown, with the filters applied">Download CSV</button></div>
 <div class="tools">
-  {sel("am", "AM", ams)}{sel("ppc", "PPC", ppcs)}
+  <select id="per" aria-label="Period" hidden></select>{sel("am", "AM", ams)}{sel("ppc", "PPC", ppcs)}
   <select id="st" aria-label="Status"><option value="current">Current accounts</option><option value="inactive">Inactive</option><option value="">All accounts</option></select>
   <input id="q" type="search" placeholder="Filter accounts" aria-label="Filter accounts">
   <span class="count" id="count"></span>
 </div>
-<div class="wrap fit"><table id="main-t"><colgroup><col style="width:21%"><col style="width:12%"><col><col><col><col><col><col><col style="width:12%"></colgroup><thead><tr><th>Account &middot; click for details</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th><th>Automated, 30 days</th></tr></thead>
+<div class="wrap fit"><table id="main-t"><colgroup><col style="width:21%"><col style="width:12%"><col><col><col><col><col><col><col style="width:12%"></colgroup><thead><tr><th>Account &middot; click for details</th><th>Status</th><th>Sessions, last 7 days</th><th>Sessions, period</th><th>Active days</th><th>Last change</th><th>Changes, last 7 days</th><th>Changes, period</th><th>Automated, period</th></tr></thead>
 <tbody id="rows"></tbody></table></div>
 <p class="notes">A work session is a run of changes with no gap longer than 30 minutes. Bulk / tool = 50+ changes at 10+ per minute (a bulk file or an outside tool); hand edits = everything slower.
 One bulk upload can create thousands of changes, so read sessions and active days before the change count. Status: red = no work session in the last 7 days, amber = 3 active days or fewer in 30 days.
