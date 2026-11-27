@@ -45,14 +45,25 @@ CSS = """
 .chips { display:flex; flex-wrap:wrap; gap:6px; margin: 0 0 10px; }
 .chip { border: 1px solid %(border)s; border-radius: 4px; padding: 3px 8px; font-size: 12px; color: %(muted)s; background:#fff; }
 .chip b { color: %(ink)s; margin-right: 3px; }
-.strip { overflow-x:auto; background:#fff; border:1px solid %(border)s; border-radius: 6px; padding: 6px 4px 2px; }
-.strip svg { display:block; min-width: 820px; width: 100%%; height:auto; }
+.strip { overflow:hidden; background:#fff; border:1px solid %(border)s; border-radius: 6px; padding: 6px 4px 2px; }
+.strip svg { display:block; width: 100%%; height:auto; }
+/* no sideways scrolling: the account table and everything inside an opened account fit the page width */
+.wrap.fit { overflow-x: visible; }
+#main-t { table-layout: fixed; width: 100%%; }
+#main-t > thead > tr > th, #main-t > tbody > tr > td { white-space: normal; padding: 9px 8px; overflow-wrap: anywhere; }
+#main-t > thead > tr > th { font-size: 10.5px; }
+#main-t tr.det > td { padding: 14px 14px 18px; }
+#main-t .mini { max-height: none; overflow: visible; }
+#main-t .sess table { table-layout: fixed; width: 100%%; }
+#main-t .sess th, #main-t .sess td { white-space: normal; overflow-wrap: anywhere; padding: 7px 8px; }
+#main-t .sess th, #main-t > thead > tr > th { overflow-wrap: normal; }
+#main-t .det-h b { overflow-wrap: anywhere; }
 .legend { display:flex; flex-wrap:wrap; gap:14px; font-size:12px; color: %(muted)s; margin: 8px 0 12px; }
 .legend span { display:inline-flex; align-items:center; gap:6px; } .sw { width:10px; height:10px; border-radius:2px; display:inline-block; }
 .sess td, .sess th { text-align:left; }
-#rows tr.acc td:first-child { min-width: 190px; }
+
 .sess td.n, .sess th.n { text-align:right; }
-.sess td.w { white-space: normal; min-width: 260px; }
+.sess td.w { white-space: normal; }
 .kind { font-size: 11px; font-weight: 600; border-radius: 10px; padding: 1px 7px; background: #e8eef9; color: #3a6fc4; white-space: nowrap; }
 .kind.m { background:#eef0f3; color: %(muted)s; }
 @media print {
@@ -150,7 +161,7 @@ function detail(r){
   h += '<div class="strip">'+strip(a)+'</div><div class="legend">'+CATS.map(function(c){ return '<span><i class="sw" style="background:'+c[0]+'"></i>'+c[1]+'</span>'; }).join("")+'<span>Bar height: changes per day, log scale</span></div>';
   var ss = (a.sessions||[]).slice().reverse();
   if (!ss.length) return h + '<p class="na">No work sessions in this period.</p>';
-  h += '<div class="mini sess"><table><thead><tr><th>Date</th><th>Time (ET)</th><th>Type</th><th class="n">Changes</th><th class="n">Campaigns</th><th>What changed</th></tr></thead><tbody>';
+  h += '<div class="mini sess"><table><colgroup><col style="width:12%"><col style="width:12%"><col style="width:15%"><col style="width:10%"><col style="width:11%"><col></colgroup><thead><tr><th>Date</th><th>Time (ET)</th><th>Type</th><th class="n">Changes</th><th class="n">Campaigns</th><th>What changed</th></tr></thead><tbody>';
   ss.forEach(function(x){ var dd = pd(x.d);
     h += '<tr><td>'+WD[dd.getDay()]+' '+nice(x.d)+'</td><td>'+(x.t0===x.t1 ? x.t0 : x.t0+'&ndash;'+x.t1)+'</td><td><span class="kind'+(x.k==="B"?"":" m")+'">'+(x.k==="B"?"Bulk upload / tool":"Hand edits")+'</span></td><td class="n">'+x.n.toLocaleString()+'</td><td class="n">'+x.c.toLocaleString()+'</td><td class="w">'+esc(words(x.codes))+'</td></tr>'; });
   return h + '</tbody></table></div>';
@@ -259,7 +270,7 @@ def page(team_rows, today):
   <input id="q" type="search" placeholder="Filter accounts" aria-label="Filter accounts">
   <span class="count" id="count"></span>
 </div>
-<div class="wrap"><table><thead><tr><th>Account &middot; click for the full timeline</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th><th>Automated, 30 days</th></tr></thead>
+<div class="wrap fit"><table id="main-t"><colgroup><col style="width:21%"><col style="width:12%"><col><col><col><col><col><col><col style="width:12%"></colgroup><thead><tr><th>Account &middot; click for details</th><th>Status</th><th>Sessions, 7 days</th><th>Sessions, 30 days</th><th>Active days</th><th>Last change</th><th>Changes, 7 days</th><th>Changes, 30 days</th><th>Automated, 30 days</th></tr></thead>
 <tbody id="rows"></tbody></table></div>
 <p class="notes">A work session is a run of changes with no gap longer than 30 minutes. Bulk / tool = 50+ changes at 10+ per minute (a bulk file or an outside tool); hand edits = everything slower.
 One bulk upload can create thousands of changes, so read sessions and active days before the change count. Status: red = no work session in the last 7 days, amber = 3 active days or fewer in 30 days.
